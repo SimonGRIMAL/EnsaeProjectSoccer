@@ -138,16 +138,58 @@ Team_home_viz<-t
 
 # nom de l'équipe
 t<-Team_home_viz %>% left_join (Team[,c(2,4)],by= c("home_team_api_id"="team_api_id"))
+Team_home_viz<-t
 
 # sauvegarde de l'objet Team_home_viz
 
 save(Team_home_viz,file="Team_home_viz.RData")
 
-
 #test de visualisation
+paris <- filter( Team_home_viz,team_long_name=="Paris Saint-Germain")
+
+names(paris)
+
+paris2 <-as.data.frame(t(paris[,c("nb_goal_scored_2008/2009","nb_goal_scored_2009/2010",
+                  "nb_goal_scored_2010/2011","nb_goal_scored_2011/2012",
+                  "nb_goal_scored_2012/2013","nb_goal_scored_2013/2014",
+                  "nb_goal_scored_2014/2015")]))
+
+paris3<-melt(paris[,c("nb_goal_scored_2008/2009","nb_goal_scored_2009/2010",
+                      "nb_goal_scored_2010/2011","nb_goal_scored_2011/2012",
+                      "nb_goal_scored_2012/2013","nb_goal_scored_2013/2014",
+                      "nb_goal_scored_2014/2015")])
+
+
+#ggplot(paris3)+ aes(x =variable, y=value) + geom_point() 
+
+#ggplot(paris3)+ aes(x =variable, y=value) + geom_bar(stat="identity")
+
+ggplot(paris3)+ aes(x =variable, y=value,group=1)+geom_point() + geom_line(size=1)
+
+
+paris4<-melt(paris[,c("nb_goal_scored_2008/2009","nb_goal_scored_2009/2010",
+                      "nb_goal_scored_2010/2011","nb_goal_scored_2011/2012",
+                      "nb_goal_scored_2012/2013","nb_goal_scored_2013/2014",
+                      "nb_goal_scored_2014/2015",
+                      "nb_goal_conceded_2008/2009","nb_goal_conceded_2009/2010",
+                      "nb_goal_conceded_2010/2011","nb_goal_conceded_2011/2012",
+                      "nb_goal_conceded_2012/2013","nb_goal_conceded_2013/2014",
+                      "nb_goal_conceded_2014/2015"
+                      )])
+
+paris4$season <- substr(as.character(paris4$variable),nchar(as.character(paris4$variable))-8,nchar(as.character(paris4$variable)) )
+
+paris4$variable <- substr(as.character(paris4$variable),1,nchar(as.character(paris4$variable))-10 )
+
+ggplot(paris4)+ aes(x =season, y=value, group=variable, colour=variable) +
+geom_point(size=2) +
+geom_line(size=1) + 
+theme_classic() +
+geom_text(aes(label=value), nudge_y = 4, size=3 ) +
+labs(title="Nombre de buts marqués et encaissés par saison", x= "Saison", y ="Nombre de buts") +
+theme(legend.position = "bottom") +
+scale_color_manual(values=c("red", "green"))
 
 
 
-
-
-
+test <- as.data.frame(t(paris [,51:62]))

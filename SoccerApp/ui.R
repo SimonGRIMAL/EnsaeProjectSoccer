@@ -18,14 +18,14 @@ sidebar <- dashboardSidebar(
              menuSubItem('Analyse Joueurs',
                          tabName = 'Joueurs',
                          icon = icon('line-chart'))),
-    menuItem("Modélisation", icon = icon("spinner"), tabName = "model"),
+    menuItem("ModC)lisation", icon = icon("spinner"), tabName = "model"),
     menuItem("Informations", icon = icon("info-circle"), tabName = "about")
   )
 )
 
 
 body <- dashboardBody(
-  useShinyjs(),
+  #useShinyjs(),
   tabItems(
     
     ###########################################################################################################################################
@@ -40,7 +40,7 @@ body <- dashboardBody(
                 selectInput("dataActionChoice", label = "Sectionnez une equipe domicile", 
                             choices = list(""), 
                             selected = 1),
-                selectInput("dataActionChoice", label = "Sectionnez une equipe extérieur", 
+                selectInput("dataActionChoice", label = "Sectionnez une equipe extC)rieur", 
                             choices = list(""), 
                             selected = 1)
               )
@@ -48,7 +48,9 @@ body <- dashboardBody(
     ),
     ###########################################################################################################################################
     
-    tabItem(tabName = "analyse"
+    tabItem(tabName = "Match",
+            plotOutput(outputId="goalPlot") ,
+            dataTableOutput(outputId="teamData")
             ),
     
     
@@ -61,14 +63,14 @@ body <- dashboardBody(
     
     tabItem(tabName = "about",
             h3("Version V0"),
-            h3("Selection du match à analyser"),
+            h3("Selection du match C  analyser"),
             h3("Analyse du Match"),
             p("Position des joureurs"),
-            p("Statistiques sur les équipes Domicile et extérieur"),
+            p("Statistiques sur les C)quipes Domicile et extC)rieur"),
             
-            h3("Modélisation"),
-            p("Comparaison et résultats des modèles prédictifs"),
-            p("Contenu exact à définir précisemment")
+            h3("ModC)lisation"),
+            p("Comparaison et rC)sultats des modC(les prC)dictifs"),
+            p("Contenu exact C  dC)finir prC)cisemment")
     )
   )
 )
