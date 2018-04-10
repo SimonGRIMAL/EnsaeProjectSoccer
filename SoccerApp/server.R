@@ -20,14 +20,27 @@ shinyServer( function(input, output) {
   
   #Selection du championnat
   
-  League_choice_id <- renderPrint({League[League$name == input$ChoixChampionnat,"id"]})
-
-
+  #Selection de la team Home
+  output$HomeTeamSelection <- renderUI({
+    #Match_choice_id <- filter(Match_2015_2016 , league_id == League_choice_id)
+    #Match_choice_id <- Match_2015_2016[Match_2015_2016$league_id == League[League$name == input$ChoixChampionnat,"id"],"id"]
+    selectInput(inputId = "ChoixEquipeMaison", label = "Home Team Selection", 
+                choices =  Match_2015_2016[Match_2015_2016$league_id == League[League$name == input$ChoixChampionnat,"id"],"home_team_api_id"])
+  })
+  #Selection de la team Away
+  output$AwayTeamSelection <- renderUI({
+    #Match_choice_id <- filter(Match_2015_2016 , league_id == League_choice_id)
+    #Match_choice_id <- Match_2015_2016[Match_2015_2016$league_id == League[League$name == input$ChoixChampionnat,"id"],"id"]
+    selectInput(inputId = "ChoixEquipeExterieur", label = "Away Team Selection", 
+                choices =  Match_2015_2016[Match_2015_2016$league_id == League[League$name == input$ChoixChampionnat,"id"],"away_team_api_id"])
+  })
   #Selection du match
   output$MatchSelection <- renderUI({
     #Match_choice_id <- filter(Match_2015_2016 , league_id == League_choice_id)
-    Match_choice_id <- Match_2015_2016[Match_2015_2016$league_id == League_choice_id,"id"]
-  })
+    #Match_choice_id <- Match_2015_2016[Match_2015_2016$league_id == League[League$name == input$ChoixChampionnat,"id"],"id"]
+  selectInput(inputId = "ChoixMatch", label = "Match Selection", 
+                choices =  Match_2015_2016[Match_2015_2016$league_id == League[League$name == input$ChoixChampionnat,"id"],"id"])
+    })
   
   
   
