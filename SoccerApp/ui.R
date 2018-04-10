@@ -16,11 +16,13 @@ load("data/League.Rdata")
 sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Selection", tabName = "Select", icon = icon("tasks"),
-             selectInput(inputId = "ChoixChampionnat", label = "Selectionnez un championnat", 
+             selectInput(inputId = "ChoixChampionnat", label = "Championship Choice", 
                          choices = League$name,
                          selected = 1),
-             selectInput(inputId = "ChoixMatch", label = "Selectionnez un match", 
-                          choices = uiOutput(outputId = "MatchSelection"))),
+             uiOutput(outputId = "MatchSelection"),      #selectInput dependant du precedent selectInput -> dans Server.R
+             uiOutput(outputId = "HomeTeamSelection"),   #selectInput dependant du precedent selectInput -> dans Server.R
+            uiOutput(outputId = "AwayTeamSelection")),   #selectInput dependant du precedent selectInput -> dans Server.R
+  
     menuItem("Analyse du match", icon = icon("bar-chart-o"), tabName = "analyse",
              menuSubItem('Analyse Match',
                          tabName = 'Match',

@@ -20,3 +20,4 @@ Team_Attributes <- dbReadTable(db,"Team_Attributes")
 sqlite_sequence <- dbReadTable(db,"sqlite_sequence")
 
 dbDisconnect(db)
+
