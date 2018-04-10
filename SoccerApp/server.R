@@ -1,22 +1,42 @@
-#
-# This is the server logic of a Shiny web application. You can run the 
-# application by clicking 'Run App' above.'
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
+library(dplyr)
+library(ggplot2)
+library(reshape)
+
+
+#Téléchargement des objets R nécessaires
+load("data/League.Rdata")
+load("data/Team.Rdata")
+load("data/Team_home_viz.RData")
+load("data/Match_2015_2016.Rdata")
+
+#Chargement des sources
+source("helpers.R")
 
 
 shinyServer( function(input, output) {
    
+  #tabItem = Selection
+  
+  #Selection du championnat
+  
+  League_choice_id <- renderPrint({League[League$name == input$ChoixChampionnat,"id"]})
+
+
+  #Selection du match
+  output$MatchSelection <- renderUI({
+    #Match_choice_id <- filter(Match_2015_2016 , league_id == League_choice_id)
+    Match_choice_id <- Match_2015_2016[Match_2015_2016$league_id == League_choice_id,"id"]
+  })
+  
+  
+  
+  #tabItem == Match
   output$goalPlot <- renderPlot({
       #ce n'est pas dynamique
       # exemple avec Paris
     
-    paris <- filter( Team_home_viz,team_long_name=="Paris Saint-Germain")
+    paris <- filter( Team_home_viz,team_long_name.x=="Paris Saint-Germain")
     
     paris4<-melt(paris[,c("nb_goal_scored_2008/2009","nb_goal_scored_2009/2010",
                           "nb_goal_scored_2010/2011","nb_goal_scored_2011/2012",

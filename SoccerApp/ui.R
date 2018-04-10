@@ -1,16 +1,26 @@
 # Soccer App
 # Mars 2018
 # ABIDE Nadira - EKAMBI Olivier - GRIMAL Simon
-########################################################"""""""
+########################################################
 
-
-library(shiny)
+#################
+#INITIALISTAION
+#################
+library(shinyjs)
 library(shinydashboard)
+library(plotly)
+library(shinycssloaders)
 
+load("data/League.Rdata")
 
 sidebar <- dashboardSidebar(
   sidebarMenu(
-    menuItem("Selection", tabName = "front", icon = icon("tasks")),
+    menuItem("Selection", tabName = "Select", icon = icon("tasks"),
+             selectInput(inputId = "ChoixChampionnat", label = "Selectionnez un championnat", 
+                         choices = League$name,
+                         selected = 1),
+             selectInput(inputId = "ChoixMatch", label = "Selectionnez un match", 
+                          choices = uiOutput(outputId = "MatchSelection"))),
     menuItem("Analyse du match", icon = icon("bar-chart-o"), tabName = "analyse",
              menuSubItem('Analyse Match',
                          tabName = 'Match',
@@ -30,17 +40,17 @@ body <- dashboardBody(
     
     ###########################################################################################################################################
     
-    tabItem(tabName = "select",
+    tabItem(tabName = "Select",
             fluidRow(
               box(
                 height = 400, width = 2, title = "Selection du match", solidHeader = TRUE, status = "primary",
-                selectInput("dataActionChoice", label = "Sectionnez un championnat", 
+                selectInput("ChoixChampionnat", label = "Sectionnez un championnat", 
                             choices = list(""), 
                             selected = 1),
                 selectInput("dataActionChoice", label = "Sectionnez une equipe domicile", 
                             choices = list(""), 
                             selected = 1),
-                selectInput("dataActionChoice", label = "Sectionnez une equipe extC)rieur", 
+                selectInput("dataActionChoice", label = "Sectionnez une equipe extérieur", 
                             choices = list(""), 
                             selected = 1)
               )
@@ -49,7 +59,7 @@ body <- dashboardBody(
     ###########################################################################################################################################
     
     tabItem(tabName = "Match",
-            plotOutput(outputId="goalPlot") ,
+            plotOutput(outputId="goalPlot"),
             dataTableOutput(outputId="teamData")
             ),
     
