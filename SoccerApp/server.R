@@ -15,7 +15,7 @@ source("helpers.R")
 
 
 shinyServer( function(input, output) {
-   
+  
   #tabItem = Selection
   ####################
   
@@ -41,14 +41,41 @@ shinyServer( function(input, output) {
                  choices =  Choice2)
    })
   
-  #Deduction Selection du match
+  #Deduction Selection du match #### Match_id ####  A VOIR SI CA MARCHE 
   Match_id <- reactive({
     Match_Shiny %>% filter(home_team_api_name==input$ChoixEquipeMaison | away_team_api_name==input$ChoixEquipeExterieur) %>% select(match_api_id)
   })
+  Match_id=3000 #for debug
+  
+  #tabItem = team (box de gauche Position Joueurs)
+  ################################################
+  library(magick)
+  image <- image_read("img/terrain2.jpg")
+
+  output$terrainVisu <- renderImage({
+    width<-413
+    height<-825
+    size <- paste(width,'x',height)
+    X_home<-width/10*t(Match_Shiny[Match_id,12:22])  #calcul coord team home
+    Y_home<-height/2/12*t(Match_Shiny[Match_id,34:44])
+    
+    X_away <- width/10*t(Match_Shiny[Match_id,23:33])  #calcul coord team away
+    Y_away <- height/2/12*t(Match_Shiny[Match_id,45:55])+2*(height/2-height/2/12*t(Match_Shiny[Match_id,45:55]))
+    
+    tmpfile <- image %>%
+      image_resize(size) %>%
+      #image_draw(image, pointsize = 20,antialias = FALSE) %>%
+      #points(X_home,Y_home,pch=6,col="blue",bg="blue") %>%
+      #points(X_away,Y_away,pch=2,col="red",bg="red") %>%
+      image_write(tempfile(fileext='jpg'), format = 'jpg')
+    
+    # Return a list
+    list(src = tmpfile, contentType = "image/jpeg")
+  })
   
   
-  #tabItem == Match
-  ##################
+  #tabItem = team (box de droite stats Equipe)
+  ############################################
   output$goalPlot <- renderPlot({
       #ce n'est pas dynamique
       # exemple avec Paris

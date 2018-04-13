@@ -42,13 +42,13 @@ body <- dashboardBody(
     ###########################################################################################################################################
     
     tabItem(tabName = "selection",
-            h2("Ici equipes et logo")
+            img(src = "img/logo_ligue1.jpeg")
     ),
     ###########################################################################################################################################
     
     tabItem(tabName = "team",
             box(
-              h2("ici la position des joueurs")
+              imageOutput("terrainVisu")
             ),
             box(
               h2("ici stats sur les equipes"),
