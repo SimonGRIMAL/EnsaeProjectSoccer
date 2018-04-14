@@ -17,7 +17,7 @@ library(magick)
 Match_id <- 3000
   
 #Preparation des objets R qui seront en arguments (A mettre hors de la fonction une fois l'objet R crée)
-Match_light<-Match[,(1:55)]
+Match_Shiny<-Match[,(1:55)]
 
 #plot(t(Match_light[Match,34:44]),t(Match_light[Match,12:22]),pch=15,col="blue",xlab="",ylab="", main=paste("Home team game system :",Matchs_Config$game_syst_home[Num_Match]))
 #Match_light[1000,12]
@@ -29,11 +29,11 @@ drawing
 width<-330
 height<-640  #essayer de trouver comment sortie la resolution de drawing
 
-X_home<-width/10*t(Match_light[Match_id,12:22])  #calcul coord team home
-Y_home<-height/2/12*t(Match_light[Match_id,34:44])
+X_home<-width/10*t(Match_Shiny[Match_id,12:22])  #calcul coord team home
+Y_home<-height/2/12*t(Match_Shiny[Match_id,34:44])
 
-X_away <- width/10*t(Match_light[Match_id,23:33])  #calcul coord team away
-Y_away <- height/2/12*t(Match_light[Match_id,45:55])+2*(height/2-height/2/12*t(Match_light[Match_id,45:55]))
+X_away <- width/10*t(Match_Shiny[Match_id,23:33])  #calcul coord team away
+Y_away <- height/2/12*t(Match_Shiny[Match_id,45:55])+2*(height/2-height/2/12*t(Match_Shiny[Match_id,45:55]))
 
 points(X_home,Y_home,pch=6,col="blue",bg="blue") #on trace
 points(X_away,Y_away,pch=2,col="red",bg="red")

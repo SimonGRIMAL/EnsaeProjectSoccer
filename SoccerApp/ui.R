@@ -15,22 +15,21 @@ load("data/League.Rdata")
 
 sidebar <- dashboardSidebar(
   sidebarMenu(
-    menuItem("Selection", tabName = "Select", icon = icon("tasks"),
+    menuItem("Selection", tabName = "selection", icon = icon("tasks"),
              selectInput(inputId = "ChoixChampionnat", label = "Championship Choice", 
                          choices = League$name,
                          selected = 1),
-             uiOutput(outputId = "MatchSelection"),      #selectInput dependant du precedent selectInput -> dans Server.R
              uiOutput(outputId = "HomeTeamSelection"),   #selectInput dependant du precedent selectInput -> dans Server.R
-            uiOutput(outputId = "AwayTeamSelection")),   #selectInput dependant du precedent selectInput -> dans Server.R
-  
-    menuItem("Analyse du match", icon = icon("bar-chart-o"), tabName = "analyse",
-             menuSubItem('Analyse Match',
-                         tabName = 'Match',
+             uiOutput(outputId = "AwayTeamSelection")),   #selectInput dependant du precedent selectInput -> dans Server.R
+    
+    menuItem("Analysis", icon = icon("bar-chart-o"), tabName = "analysis",
+             menuSubItem('Team',
+                         tabName = 'team',
                          icon = icon('line-chart')),
-             menuSubItem('Analyse Joueurs',
-                         tabName = 'Joueurs',
+             menuSubItem('Players',
+                         tabName = 'players',
                          icon = icon('line-chart'))),
-    menuItem("ModC)lisation", icon = icon("spinner"), tabName = "model"),
+    menuItem("Modelisation", icon = icon("spinner"), tabName = "modelisation"),
     menuItem("Informations", icon = icon("info-circle"), tabName = "about")
   )
 )
@@ -42,47 +41,42 @@ body <- dashboardBody(
     
     ###########################################################################################################################################
     
-    tabItem(tabName = "Select",
-            fluidRow(
-              box(
-                height = 400, width = 2, title = "Selection du match", solidHeader = TRUE, status = "primary",
-                selectInput("ChoixChampionnat", label = "Sectionnez un championnat", 
-                            choices = list(""), 
-                            selected = 1),
-                selectInput("dataActionChoice", label = "Sectionnez une equipe domicile", 
-                            choices = list(""), 
-                            selected = 1),
-                selectInput("dataActionChoice", label = "Sectionnez une equipe extérieur", 
-                            choices = list(""), 
-                            selected = 1)
-              )
-                )
+    tabItem(tabName = "selection",
+            img(src = "img/logo_ligue1.jpeg")
     ),
     ###########################################################################################################################################
     
-    tabItem(tabName = "Match",
-            plotOutput(outputId="goalPlot"),
-            dataTableOutput(outputId="teamData")
+    tabItem(tabName = "team",
+            box(
+              imageOutput("terrainVisu")
             ),
+            box(
+              h2("ici stats sur les equipes"),
+              plotOutput(outputId="goalPlot"),
+              dataTableOutput(outputId="teamData")
+            )),
     
+    tabItem(tabname = "players",
+            h2("ici stats sur les joueurs")
+            ),
     
     ###########################################################################################################################################
     
-    tabItem(tabName = "modelisation"
-            ),
-    
+    tabItem(tabName = "modelisation",
+            h2("ici la modelisation")
+    ),
     ###########################################################################################################################################
     
     tabItem(tabName = "about",
             h3("Version V0"),
-            h3("Selection du match C  analyser"),
-            h3("Analyse du Match"),
-            p("Position des joureurs"),
-            p("Statistiques sur les C)quipes Domicile et extC)rieur"),
+            h3("Select Match Season 2015/2016"),
+            h3("Match Analyse"),
+            p("Players position"),
+            p("Team statistics"),
             
-            h3("ModC)lisation"),
-            p("Comparaison et rC)sultats des modC(les prC)dictifs"),
-            p("Contenu exact C  dC)finir prC)cisemment")
+            h3("Modelisation"),
+            p("Predictives models based on season 2008 to 2015"),
+            p("And more")
     )
   )
 )
