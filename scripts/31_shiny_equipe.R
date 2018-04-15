@@ -192,4 +192,96 @@ scale_color_manual(values=c("red", "green"))
 
 
 
-test <- as.data.frame(t(paris [,51:62]))
+
+Team_home_viz <- Team_home_viz[,-c(64)]
+
+Team_home_viz%>%rename(team_long_name=team_long_name.x)
+
+
+dplyr::rename(Team_home_viz,team_long_name.x=team_long_name)
+
+colnames(Team_home_viz)
+
+colnames(Team_home_viz)[63]<-"team_long_name" 
+
+save(Team_home_viz,file="Team_home_viz.RData")
+
+
+
+
+###############
+# EQUIPE AWAY
+################
+
+
+list_away_team_viz<-as.data.frame(unique(Match_viz$away_team_api_id))
+
+colnames(list_away_team_viz) <- "away_team_api_id"
+
+## nombre de match disputés à l'extérieur par equipe et par saison
+
+nb_match_team_season<- Match %>% group_by(away_team_api_id,season) %>% count()
+Team_away_viz<-cast(nb_match_team_season,away_team_api_id~season,fill=0)
+colnames(Team_away_viz)[2:9]<-paste("nb_match", colnames(Team_away_viz[2:9]), sep = "_")
+
+
+## nb de victoires, défaites, matchs nuls
+
+#creation variable victoire, défaite, match nul
+Match$goal_diff <- Match$home_team_goal-Match$away_team_goal
+Match$goal_diff_class <- cut(Match$goal_diff, breaks=c(min(Match$goal_diff),-1e-10,+1e-10,max(Match$goal_diff)))
+levels(Match$goal_diff_class) <- c("home_loss","draw","home_win")
+
+nb_match_team_season_2<- Match %>% group_by(away_team_api_id,season,goal_diff_class) %>% count()
+
+Team_away_viz_2<-cast(nb_match_team_season_2,away_team_api_id~season+goal_diff_class,fill=0)
+colnames(Team_away_viz_2)[2:26]<-paste("nb_match", colnames(Team_away_viz_2[2:26]), sep = "_")
+
+## nb de buts marqués et encaissés
+nb_match_team_season_3<- Match %>% group_by(away_team_api_id,season) %>% summarize(goal_scored=sum(away_team_goal), goal_conceded=sum(home_team_goal))
+
+Team_away_viz_31<-cast(nb_match_team_season_3,away_team_api_id~season,value="goal_scored",fill=0)
+colnames(Team_away_viz_31)[2:9]<-paste("nb_goal_scored", colnames(Team_away_viz_31[2:9]), sep = "_")
+
+Team_away_viz_32<-cast(nb_match_team_season_3,away_team_api_id~season,value="goal_conceded",fill=0)
+colnames(Team_away_viz_32)[2:9]<-paste("nb_goal_conceded", colnames(Team_away_viz_32[2:9]), sep = "_")
+
+#jointures avec join de dplyr
+tt<-list_away_team_viz %>% inner_join(Team_away_viz)%>% inner_join (Team_away_viz_2) %>% inner_join (Team_away_viz_31)%>% inner_join (Team_away_viz_32)
+Team_away_viz<-tt
+
+#jointure avec team attributes
+temp <- list_away_team_viz %>% inner_join(Team_attributes,by= c("away_team_api_id"="team_api_id"))
+temp$annee<-substr(temp$date,1,4)
+
+# V1 : restitution données année avant prevision
+temp <-filter(temp,annee=="2015")
+temp <- temp [, c("away_team_api_id",
+                  "buildUpPlaySpeedClass",
+                  "buildUpPlayDribblingClass",
+                  "buildUpPlayPassingClass","buildUpPlayPositioningClass",
+                  "chanceCreationPassingClass",
+                  "chanceCreationCrossingClass",
+                  "chanceCreationShootingClass",
+                  "chanceCreationPositioningClass",
+                  "defencePressureClass",
+                  "defenceAggressionClass",
+                  "defenceTeamWidthClass",
+                  "defenceDefenderLineClass")]
+
+#jointure 
+t<-Team_away_viz %>% left_join (temp)
+Team_away_viz<-t
+
+
+# nom de l'équipe
+t<-Team_away_viz %>% left_join (Team[,c(2,4)],by= c("away_team_api_id"="team_api_id"))
+Team_away_viz<-t
+
+# sauvegarde de l'objet Team_home_viz
+
+save(Team_away_viz,file="Team_away_viz.RData")
+
+
+
+

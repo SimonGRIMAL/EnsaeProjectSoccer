@@ -50,11 +50,18 @@ body <- dashboardBody(
             box(
               imageOutput("terrainVisu")
             ),
-            box(
-              h2("ici stats sur les equipes"),
-              plotOutput(outputId="goalPlot"),
-              dataTableOutput(outputId="teamData")
-            )),
+            box(title="Statistics about home and away team",
+                status="success", 
+                solidHeader = TRUE,
+                collapsible = TRUE,
+                textOutput(outputId="NameHTeam"),
+                plotOutput(outputId="goalHPlot"),
+                tableOutput(outputId="teamHData"),
+                textOutput(outputId="NameATeam"),
+                plotOutput(outputId="goalAPlot"),
+                tableOutput(outputId="teamAData")
+                )
+            ),
     
     tabItem(tabname = "players",
             h2("ici stats sur les joueurs")
