@@ -54,8 +54,8 @@ shinyServer( function(input, output) {
   image <- image_read("img/terrain2.jpg")
 
   output$terrainVisu <- renderImage({
-    width<-413
-    height<-825
+    width<-330
+    height<-640
     size <- paste(width,'x',height)
     X_home<-width/10*t(Match_Shiny[Match_id,12:22])  #calcul coord team home
     Y_home<-height/2/12*t(Match_Shiny[Match_id,34:44])
@@ -63,11 +63,12 @@ shinyServer( function(input, output) {
     X_away <- width/10*t(Match_Shiny[Match_id,23:33])  #calcul coord team away
     Y_away <- height/2/12*t(Match_Shiny[Match_id,45:55])+2*(height/2-height/2/12*t(Match_Shiny[Match_id,45:55]))
     
-    tmpfile <- image %>%
+    position <- image_draw(image, pointsize = 20,antialias = FALSE)
+    points(X_home,Y_home,pch=6,col="blue",bg="blue")
+    points(X_away,Y_away,pch=2,col="red",bg="red")
+    
+    tmpfile <- position %>%
       image_resize(size) %>%
-      #image_draw(image, pointsize = 20,antialias = FALSE) %>%
-      #points(X_home,Y_home,pch=6,col="blue",bg="blue") %>%
-      #points(X_away,Y_away,pch=2,col="red",bg="red") %>%
       image_write(tempfile(fileext='jpg'), format = 'jpg')
     
     # Return a list

@@ -47,7 +47,7 @@ body <- dashboardBody(
     ###########################################################################################################################################
     
     tabItem(tabName = "team",
-            box(
+            box(width = 3,
               imageOutput("terrainVisu")
             ),
             box(title="Statistics about home and away team",
