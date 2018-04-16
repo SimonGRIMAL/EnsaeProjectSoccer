@@ -18,7 +18,7 @@ sidebar <- dashboardSidebar(
     menuItem("Selection", tabName = "selection", icon = icon("tasks"),
              selectInput(inputId = "ChoixChampionnat", label = "Championship Choice", 
                          choices = League$name,
-                         selected = 3),
+                         selected = "France Ligue 1"),
              uiOutput(outputId = "HomeTeamSelection"),    #selectInput dependant du precedent selectInput -> dans Server.R
              uiOutput(outputId = "AwayTeamSelection")),   #selectInput dependant du precedent selectInput -> dans Server.R
     
@@ -50,13 +50,16 @@ body <- dashboardBody(
     
     tabItem(tabName = "selection",
             img(src = "img/logo_ligue1.jpeg")
-    ),
+            ),
     ###########################################################################################################################################
     
     tabItem(tabName = "match",
             box(
               imageOutput("terrainVisu")
-               )
+              ),
+            box(
+              imageOutput("championnatImage")
+              )
             ),
     
     tabItem(tabName = "team",
