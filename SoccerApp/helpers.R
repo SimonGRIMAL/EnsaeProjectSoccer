@@ -33,3 +33,17 @@ filter_team <- function (nom_table,nom_team){
 
 #test<- filter_team(Team_home_viz,"Paris Saint-Germain")
 
+
+##############################################################################
+# Fonction flitre recupération du Match_id de la table Match_Shiny
+##############################################################################
+
+filter_match <- function (nom_table,nom_team_home,nom_team_away){
+  
+  #MatchID <- nom_table %>% filter(home_team_api_name==nom_team_home | away_team_api_name==nom_team_away) %>% select(match_api_id) PK MARCHE PAS ????
+  
+  team_home <- filter(nom_table,home_team_api_name==nom_team_home)
+  Match <- filter(team_home, away_team_api_name==nom_team_away)
+
+  return (Match)
+}
