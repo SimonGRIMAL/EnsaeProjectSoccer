@@ -85,7 +85,7 @@ shinyServer( function(input, output) {
   ############################################
   
   output$NameHTeam <- renderText({
-                          paste("Home team : ",input$ChoixEquipeMaison)
+                      paste("Statistics about",input$ChoixEquipeMaison, "when playing at home")
                                 })
   
   output$goalHPlot <- renderPlot({
@@ -118,7 +118,7 @@ shinyServer( function(input, output) {
   })
   
   output$NameATeam <- renderText({
-    paste("Home team : ",input$ChoixEquipeExterieur)
+                      paste("Statistics about",input$ChoixEquipeExterieur, "when playing away")
   })
   
   output$goalAPlot <- renderPlot({

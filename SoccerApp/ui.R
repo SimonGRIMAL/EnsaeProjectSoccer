@@ -23,12 +23,19 @@ sidebar <- dashboardSidebar(
              uiOutput(outputId = "AwayTeamSelection")),   #selectInput dependant du precedent selectInput -> dans Server.R
     
     menuItem("Analysis", icon = icon("bar-chart-o"), tabName = "analysis",
+             menuSubItem('Match',
+                         tabName = 'match',
+                         icon = icon('line-chart')),
              menuSubItem('Team',
                          tabName = 'team',
                          icon = icon('line-chart')),
              menuSubItem('Players',
                          tabName = 'players',
+                         icon = icon('line-chart')),
+             menuSubItem('Brokers',
+                         tabName = 'brokers',
                          icon = icon('line-chart'))),
+             
     menuItem("Modelisation", icon = icon("spinner"), tabName = "modelisation"),
     menuItem("Informations", icon = icon("info-circle"), tabName = "about")
   )
@@ -46,26 +53,62 @@ body <- dashboardBody(
     ),
     ###########################################################################################################################################
     
-    tabItem(tabName = "team",
-            box(width = 3,
+    tabItem(tabName = "match",
+            box(
               imageOutput("terrainVisu")
+               )
             ),
-            box(title="Statistics about home and away team",
+    
+    tabItem(tabName = "team",
+            box(title="Statistics about home team",
                 status="success", 
                 solidHeader = TRUE,
-                collapsible = TRUE,
+                collapsible = FALSE,
                 textOutput(outputId="NameHTeam"),
+                tags$head(tags$style("#NameHTeam{color: green;
+                                     font-size: 20px;
+                                     font-style: italic;
+                                     font-weight: bold;
+                                     }")
+                         ),
                 plotOutput(outputId="goalHPlot"),
-                tableOutput(outputId="teamHData"),
-                textOutput(outputId="NameATeam"),
-                plotOutput(outputId="goalAPlot"),
-                tableOutput(outputId="teamAData")
-                )
+                h3("Attributes of the team",
+                    style="color: green;
+                           font-size: 20px;
+                           font-style: italic;
+                           font-weight: bold;"),
+                tableOutput(outputId="teamHData")
             ),
+            
+            box(title="Statistics about away team",
+                status="success", 
+                solidHeader = TRUE,
+                collapsible = FALSE,
+                textOutput(outputId="NameATeam"),
+                tags$head(tags$style("#NameATeam{color: green;
+                                     font-size: 20px;
+                                     font-style: italic;
+                                     font-weight: bold;
+                                     }")
+                ),
+                plotOutput(outputId="goalAPlot"),
+                h3("Attributes of the team",
+                   style="color: green;
+                           font-size: 20px;
+                           font-style: italic;
+                           font-weight: bold;"),
+                tableOutput(outputId="teamAData")
+            )
+            
+    ),
     
     tabItem(tabname = "players",
             h2("ici stats sur les joueurs")
             ),
+    
+    tabItem(tabname = "brokers",
+            h2("ici stats sur les brokers")
+    ),
     
     ###########################################################################################################################################
     
