@@ -18,7 +18,7 @@ sidebar <- dashboardSidebar(
     menuItem("Selection", tabName = "selection", icon = icon("tasks"),
              selectInput(inputId = "ChoixChampionnat", label = "Championship Choice", 
                          choices = League$name,
-                         selected = 1),
+                         selected = 3),
              uiOutput(outputId = "HomeTeamSelection"),    #selectInput dependant du precedent selectInput -> dans Server.R
              uiOutput(outputId = "AwayTeamSelection")),   #selectInput dependant du precedent selectInput -> dans Server.R
     
