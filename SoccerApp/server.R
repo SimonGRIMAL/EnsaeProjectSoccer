@@ -43,10 +43,11 @@ shinyServer( function(input, output) {
    })
   
   #Deduction Selection du match #### Match_id ####  A VOIR SI CA MARCHE 
-  Match_id <- reactive({
-    Match_Shiny %>% filter(home_team_api_name==input$ChoixEquipeMaison | away_team_api_name==input$ChoixEquipeExterieur) %>% select(match_api_id)
-  })
   Match_id=3000 #for debug
+  #Match_id <- reactive({
+  #  Match_Shiny %>% filter(home_team_api_name==input$ChoixEquipeMaison | away_team_api_name==input$ChoixEquipeExterieur) %>% select(match_api_id)
+  #})
+  
   
   #tabItem = team (box de gauche Position Joueurs)
   ################################################
@@ -54,14 +55,17 @@ shinyServer( function(input, output) {
   image <- image_read("img/terrain2.jpg")
 
   output$terrainVisu <- renderImage({
+    
+    Match <- filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+
     width<-330
     height<-640
     size <- paste(width,'x',height)
-    X_home<-width/10*t(Match_Shiny[Match_id,12:22])  #calcul coord team home
-    Y_home<-height/2/12*t(Match_Shiny[Match_id,34:44])
+    X_home<-width/10*t(Match[,12:22])  #calcul coord team home
+    Y_home<-height/2/12*t(Match[,34:44])
     
-    X_away <- width/10*t(Match_Shiny[Match_id,23:33])  #calcul coord team away
-    Y_away <- height/2/12*t(Match_Shiny[Match_id,45:55])+2*(height/2-height/2/12*t(Match_Shiny[Match_id,45:55]))
+    X_away <- width/10*t(Match[,23:33])  #calcul coord team away
+    Y_away <- height/2/12*t(Match[,45:55])+2*(height/2-height/2/12*t(Match[,45:55]))
     
     position <- image_draw(image, pointsize = 20,antialias = FALSE)
     points(X_home,Y_home,pch=6,col="blue",bg="blue")
