@@ -30,7 +30,7 @@ shinyServer( function(input, output) {
     Equipe_id_home <- as.numeric(levels(factor(Equipe_id$home_team_api_id)))
     Choice <- Team %>% filter(team_api_id %in% Equipe_id_home) %>% select(team_long_name)
     selectInput(inputId = "ChoixEquipeMaison", label = "Home Team Selection", 
-                choices =  Choice, selected = 3)# ou en une seule ligne Match_Shiny %>% filter(league_id==League[League$name == input$ChoixChampionnat,"id"]) %>% select(home_team_api_name))
+                choices =  Choice, selected = "Paris Saint-Germain")# ou en une seule ligne Match_Shiny %>% filter(league_id==League[League$name == input$ChoixChampionnat,"id"]) %>% select(home_team_api_name))
   })
   #Selection de la team Away
    output$AwayTeamSelection <- renderUI({
@@ -39,7 +39,7 @@ shinyServer( function(input, output) {
      Equipe_id_away <- as.numeric(levels(factor(Equipe_id$away_team_api_id)))
      Choice2 <- Team %>% filter(team_api_id %in% Equipe_id_away) %>% select(team_long_name)
      selectInput(inputId = "ChoixEquipeExterieur", label = "Away Team Selection", 
-                 choices =  Choice2,selected = 2)
+                 choices =  Choice2,selected = "FC Nantes")
    })
   
   #Deduction Selection du match #### Match_id ####  A VOIR SI CA MARCHE 
