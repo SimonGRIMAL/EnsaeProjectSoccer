@@ -151,9 +151,9 @@ shinyServer( function(input, output) {
   })
   
   output$championnatImage <- renderImage({
-   # filename <- normalizePath(file.path('./img',
-   #                 paste('image',input$ChoixChampionnat,'.jpg', sep='')))
-    filename <- "./img/logo_ligue1.jpeg"
+   filename <- normalizePath(file.path('./img',
+                    paste(input$ChoixChampionnat,'.jpg', sep='')))
+   # filename <- "./img/France Ligue 1.jpeg"
     list(src = filename,
         alt = paste("image",input$ChoixChampionnat)
         )
