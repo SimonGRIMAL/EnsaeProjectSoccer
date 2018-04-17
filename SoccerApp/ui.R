@@ -63,10 +63,11 @@ body <- dashboardBody(
             ),
     
     tabItem(tabName = "team",
+       fluidRow(
             box(title="Statistics about home team",
-                status="success", 
+                status="primary", 
                 solidHeader = TRUE,
-                collapsible = FALSE,
+                collapsible = TRUE,
                 textOutput(outputId="NameHTeam"),
                 tags$head(tags$style("#NameHTeam{color: green;
                                      font-size: 20px;
@@ -74,19 +75,13 @@ body <- dashboardBody(
                                      font-weight: bold;
                                      }")
                          ),
-                plotOutput(outputId="goalHPlot"),
-                h3("Attributes of the team",
-                    style="color: green;
-                           font-size: 20px;
-                           font-style: italic;
-                           font-weight: bold;"),
-                tableOutput(outputId="teamHData")
+                plotOutput(outputId="goalHPlot")
             ),
             
             box(title="Statistics about away team",
-                status="success", 
+                status="danger", 
                 solidHeader = TRUE,
-                collapsible = FALSE,
+                collapsible = TRUE,
                 textOutput(outputId="NameATeam"),
                 tags$head(tags$style("#NameATeam{color: green;
                                      font-size: 20px;
@@ -94,15 +89,34 @@ body <- dashboardBody(
                                      font-weight: bold;
                                      }")
                 ),
-                plotOutput(outputId="goalAPlot"),
-                h3("Attributes of the team",
-                   style="color: green;
-                           font-size: 20px;
-                           font-style: italic;
-                           font-weight: bold;"),
-                tableOutput(outputId="teamAData")
+                plotOutput(outputId="goalAPlot")
             )
-            
+      ) ,
+      fluidRow(
+        box(title="Statistics about home team",
+            status="primary", 
+            solidHeader = TRUE,
+            collapsible = TRUE,
+            h3("Attributes of the team",
+               style="color: green;
+               font-size: 20px;
+               font-style: italic;
+               font-weight: bold;"),
+            tableOutput(outputId="teamHData")
+            ),
+        
+        box(title="Statistics about away team",
+            status="danger", 
+            solidHeader = TRUE,
+            collapsible = TRUE,
+            h3("Attributes of the team",
+               style="color: green;
+               font-size: 20px;
+               font-style: italic;
+               font-weight: bold;"),
+            tableOutput(outputId="teamAData")
+            )
+            ) 
     ),
     
     tabItem(tabname = "players",

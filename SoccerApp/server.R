@@ -148,7 +148,7 @@ shinyServer( function(input, output) {
     colnames(t_atg) <- c(""," ")
     t_atg<-t_atg[,c(2,1)]
     return(t_atg)
-  })
+  }, striped=TRUE)
   
   output$championnatImage <- renderImage({
    filename <- normalizePath(file.path('./img',
