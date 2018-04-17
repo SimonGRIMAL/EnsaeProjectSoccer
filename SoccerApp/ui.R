@@ -58,7 +58,7 @@ body <- dashboardBody(
               imageOutput("terrainVisu")
               ),
             box(
-              imageOutput("championnatImage")
+              imageOutput("championnatImage" )
               )
             ),
     

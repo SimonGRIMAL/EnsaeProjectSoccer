@@ -278,10 +278,23 @@ Team_away_viz<-t
 t<-Team_away_viz %>% left_join (Team[,c(2,4)],by= c("away_team_api_id"="team_api_id"))
 Team_away_viz<-t
 
-# sauvegarde de l'objet Team_home_viz
+# sauvegarde de l'objet Team_away_viz
 
 save(Team_away_viz,file="Team_away_viz.RData")
 
 
 
+
+
+
+test<- filter(Team_home_viz,team_long_name=="Paris Saint-Germain")
+
+t<-as.data.frame(t(test[,c(10:30)]))
+t$variable<-rownames(t)
+t$annee<-substr(t$variable,10,18)
+t$result<-substr(t$variable,20,28)
+
+
+tt<- table(t$result,t$annee)
+print(tt)
 
