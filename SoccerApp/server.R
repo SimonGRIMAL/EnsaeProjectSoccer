@@ -69,8 +69,8 @@ shinyServer( function(input, output) {
     Y_away <- (height/2/12)*t(Match[,45:55])+2*(height/2-height/2/12*t(Match[,45:55]))
     
     position <- image_draw(image, pointsize = 20,antialias = FALSE)
-    points(X_home,Y_home,pch=6,col="blue",bg="blue")
-    points(X_away,Y_away,pch=2,col="red",bg="red")
+    points(X_home,Y_home,pch=25,col="white",bg="blue",cex=2)
+    points(X_away,Y_away,pch=24,col="white",bg="red",cex=2)
     
     tmpfile <- position %>%
       image_resize(size) %>%
