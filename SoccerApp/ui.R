@@ -15,15 +15,10 @@ load("data/League.Rdata")
 
 sidebar <- dashboardSidebar(
   sidebarMenu(
-    menuItem("Selection", tabName = "selection", icon = icon("tasks"),
-             selectInput(inputId = "ChoixChampionnat", label = "Championship Choice", 
-                         choices = League$name,
-                         selected = "France Ligue 1"),
-             uiOutput(outputId = "HomeTeamSelection"),    #selectInput dependant du precedent selectInput -> dans Server.R
-             uiOutput(outputId = "AwayTeamSelection")),   #selectInput dependant du precedent selectInput -> dans Server.R
+    menuItem("Selection", tabName = "selection", icon = icon("tasks")),
     
     menuItem("Analysis", icon = icon("bar-chart-o"), tabName = "analysis",
-             menuSubItem('Match',
+             menuSubItem('Configuration',
                          tabName = 'match',
                          icon = icon('line-chart')),
              menuSubItem('Team',
@@ -31,9 +26,6 @@ sidebar <- dashboardSidebar(
                          icon = icon('line-chart')),
              menuSubItem('Players',
                          tabName = 'players',
-                         icon = icon('line-chart')),
-             menuSubItem('Brokers',
-                         tabName = 'brokers',
                          icon = icon('line-chart'))),
              
     menuItem("Modelisation", icon = icon("spinner"), tabName = "modelisation"),
@@ -48,12 +40,25 @@ body <- dashboardBody(
     
     ###########################################################################################################################################
     
-    tabItem(tabName = "selection"
+    tabItem(tabName = "selection",
+            box(width=2,
+              selectInput(inputId = "ChoixChampionnat", label = "Championship Choice", 
+                        choices = League$name,
+                        selected = "France Ligue 1"),
+            uiOutput(outputId = "HomeTeamSelection"),    #selectInput dependant du precedent selectInput -> dans Server.R
+            uiOutput(outputId = "AwayTeamSelection")   #selectInput dependant du precedent selectInput -> dans Server.R
             ),
+            box(width=10,
+                title="pas moyen de mettre une variable dependante ici même dans le titre sans quoi les selections des équipes disparaissent!!!!")
+            ),
+    
     ###########################################################################################################################################
     
     tabItem(tabName = "match",
-            box(
+            box(title = "System of Play",
+                status="primary", 
+                solidHeader = TRUE,
+                collapsible = TRUE,
               imageOutput("terrainVisu")
               ),
             box(
