@@ -99,18 +99,18 @@ colnames(temp)
 
 # variables à restituer
 
-#buildUpPlaySpeedClass
-#buildUpPlayDribblingClass
-#buildUpPlayPassingClass
-#buildUpPlayPositioningClass
-#chanceCreationPassingClass
-#chanceCreationCrossingClass
-#chanceCreationShootingClass
-#chanceCreationPositioningClass
-#defencePressureClass
-#defenceAggressionClass
-#defenceTeamWidthClass
-#defenceDefenderLineClass
+#buildUpPlaySpeed
+#buildUpPlayDribbling
+#buildUpPlayPassing
+#buildUpPlayPositioning
+#chanceCreationPassing
+#chanceCreationCrossing
+#chanceCreationShooting
+#chanceCreationPositioning
+#defencePressure
+#defenceAggression
+#defenceTeamWidth
+#defenceDefenderLine
 
 #ces données evoluent au cours du temps ? 
 
@@ -119,18 +119,20 @@ test2<-cast(test,home_team_api_id~annee,value="buildUpPlaySpeedClass",fill=0)
 
 # V1 : restitution données année avant prevision
 temp <-filter(temp,annee=="2015")
-temp <- temp [, c("home_team_api_id",
-                  "buildUpPlaySpeedClass",
-                  "buildUpPlayDribblingClass",
-                  "buildUpPlayPassingClass","buildUpPlayPositioningClass",
-                  "chanceCreationPassingClass",
-                  "chanceCreationCrossingClass",
-                  "chanceCreationShootingClass",
-                  "chanceCreationPositioningClass",
-                  "defencePressureClass",
-                  "defenceAggressionClass",
-                  "defenceTeamWidthClass",
-                  "defenceDefenderLineClass")]
+temp <- temp [ ,c("home_team_api_id",
+                  "buildUpPlaySpeed",
+                  "buildUpPlayDribbling",
+                  "buildUpPlayPassing",
+                  #"buildUpPlayPositioning",
+                  "chanceCreationPassing",
+                  "chanceCreationCrossing",
+                  "chanceCreationShooting",
+                  #"chanceCreationPositioning",
+                  "defencePressure",
+                  "defenceAggression",
+                  "defenceTeamWidth" #,
+                  #"defenceDefenderLine"
+                  )]
 
 #jointure 
 t<-Team_home_viz %>% left_join (temp)
@@ -142,7 +144,7 @@ Team_home_viz<-t
 
 # sauvegarde de l'objet Team_home_viz
 
-save(Team_home_viz,file="Team_home_viz.RData")
+save(Team_home_viz,file="data/Team_home_viz.RData")
 
 #test de visualisation
 paris <- filter( Team_home_viz,team_long_name=="Paris Saint-Germain")
@@ -251,23 +253,25 @@ tt<-list_away_team_viz %>% inner_join(Team_away_viz)%>% inner_join (Team_away_vi
 Team_away_viz<-tt
 
 #jointure avec team attributes
-temp <- list_away_team_viz %>% inner_join(Team_attributes,by= c("away_team_api_id"="team_api_id"))
+temp <- list_away_team_viz %>% inner_join(Team_Attributes,by= c("away_team_api_id"="team_api_id"))
 temp$annee<-substr(temp$date,1,4)
 
 # V1 : restitution données année avant prevision
 temp <-filter(temp,annee=="2015")
 temp <- temp [, c("away_team_api_id",
-                  "buildUpPlaySpeedClass",
-                  "buildUpPlayDribblingClass",
-                  "buildUpPlayPassingClass","buildUpPlayPositioningClass",
-                  "chanceCreationPassingClass",
-                  "chanceCreationCrossingClass",
-                  "chanceCreationShootingClass",
-                  "chanceCreationPositioningClass",
-                  "defencePressureClass",
-                  "defenceAggressionClass",
-                  "defenceTeamWidthClass",
-                  "defenceDefenderLineClass")]
+                  "buildUpPlaySpeed",
+                  "buildUpPlayDribbling",
+                  "buildUpPlayPassing",
+                  #"buildUpPlayPositioning",
+                  "chanceCreationPassing",
+                  "chanceCreationCrossing",
+                  "chanceCreationShooting",
+                  #"chanceCreationPositioning",
+                  "defencePressure",
+                  "defenceAggression",
+                  "defenceTeamWidth" #,
+                  #"defenceDefenderLine"
+                  )]
 
 #jointure 
 t<-Team_away_viz %>% left_join (temp)
@@ -280,7 +284,7 @@ Team_away_viz<-t
 
 # sauvegarde de l'objet Team_away_viz
 
-save(Team_away_viz,file="Team_away_viz.RData")
+save(Team_away_viz,file="data/Team_away_viz.RData")
 
 
 
