@@ -110,12 +110,26 @@ shinyServer( function(input, output) {
   output$teamHData <- renderTable({
                  
                 home_team_g <- filter(Team_home_viz,team_long_name==input$ChoixEquipeMaison)
-                t_htg<-as.data.frame(t(home_team_g [,51:62]))
-                t_htg$v<-rownames(t_htg)
-                colnames(t_htg) <- c(""," ")
-                t_htg<-t_htg[,c(2,1)]
-                return(t_htg)
-  })
+                home<-mef_attributes_team (home_team_g,"home")
+                
+                away_team_g <- filter(Team_away_viz,team_long_name==input$ChoixEquipeExterieur)
+                away <- mef_attributes_team (away_team_g,"away")
+                
+                
+                mix<- home %>% left_join (away)
+                
+                for(i in 1:9) {
+                  if (mix[i,2]> mix[i,3]) { 
+                    mix[i,2]<-paste('<div style="color: blue; position:absolute"> <span>',mix[i,2], '</span></div>')
+                  }
+                  else {
+                    mix[i,3]<-paste('<div style="color: red; position:absolute"> <span>',mix[i,3], '</span></div>')
+                  }
+                }
+                
+                 return(mix[,c(1,2)])
+                
+  }, colnames=FALSE, sanitize.text.function = function(x) x, striped=TRUE)
   
   output$NameATeam <- renderText({
                       paste("Statistics about",input$ChoixEquipeExterieur, "when playing away")
@@ -123,7 +137,6 @@ shinyServer( function(input, output) {
   
   output$goalAPlot <- renderPlot({
     
-    #fonction filter_team dans helpers.R
     away_team_g<-filter_team(Team_away_viz,input$ChoixEquipeExterieur)
     
     away_team_g$season <- substr(as.character(away_team_g$variable),nchar(as.character(away_team_g$variable))-8,nchar(as.character(away_team_g$variable)) )
@@ -142,13 +155,27 @@ shinyServer( function(input, output) {
   
   output$teamAData <- renderTable({
     
+    home_team_g <- filter(Team_home_viz,team_long_name==input$ChoixEquipeMaison)
+    home<-mef_attributes_team (home_team_g,"home")
+    
     away_team_g <- filter(Team_away_viz,team_long_name==input$ChoixEquipeExterieur)
-    t_atg<-as.data.frame(t(away_team_g [,51:62]))
-    t_atg$v<-rownames(t_atg)
-    colnames(t_atg) <- c(""," ")
-    t_atg<-t_atg[,c(2,1)]
-    return(t_atg)
-  }, striped=TRUE)
+    away <- mef_attributes_team (away_team_g,"away")
+    
+    
+    mix<- home %>% left_join (away)
+    
+    for(i in 1:9) {
+      if (mix[i,2]> mix[i,3]) { 
+        mix[i,2]<-paste('<div style="color: blue; position:absolute"> <span>',mix[i,2], '</span></div>')
+      }
+      else {
+        mix[i,3]<-paste('<div style="color: red; position:absolute"> <span>',mix[i,3], '</span></div>')
+      }
+    }
+    
+    return(mix[,c(1,3)])
+    
+  }, colnames=FALSE, sanitize.text.function = function(x) x, striped=TRUE)
   
   output$championnatImage <- renderImage({
    filename <- normalizePath(file.path('./img',

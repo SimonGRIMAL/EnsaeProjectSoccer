@@ -44,13 +44,15 @@ body <- dashboardBody(
             box(width=2,
               selectInput(inputId = "ChoixChampionnat", label = "Championship Choice", 
                         choices = League$name,
-                        selected = "France Ligue 1"),
+                       selected = "France Ligue 1"),
             uiOutput(outputId = "HomeTeamSelection"),    #selectInput dependant du precedent selectInput -> dans Server.R
             uiOutput(outputId = "AwayTeamSelection")   #selectInput dependant du precedent selectInput -> dans Server.R
             ),
             box(width=10,
-                title="pas moyen de mettre une variable dependante ici même dans le titre sans quoi les selections des équipes disparaissent!!!!")
+                title="pas moyen de mettre une variable dependante ici même dans le titre sans quoi les selections des équipes disparaissent!!!!"
+                )
             ),
+    
     
     ###########################################################################################################################################
     

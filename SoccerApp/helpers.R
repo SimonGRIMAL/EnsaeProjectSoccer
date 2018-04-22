@@ -47,3 +47,19 @@ filter_match <- function (nom_table,nom_team_home,nom_team_away){
 
   return (Match)
 }
+
+
+
+##############################################################################
+# Fonction mise en forme attrituts de l'équipe
+##############################################################################
+
+
+mef_attributes_team <- function (nom_table,where_team){
+
+    t_nom_table<-as.data.frame(t(nom_table [,51:59]))
+    t_nom_table$v<-rownames(t_nom_table)
+    colnames(t_nom_table) <- c(paste("val",where_team,sep='_'),"var")
+    t_nom_table<-t_nom_table[,c(2,1)]
+    return(t_nom_table)
+}
