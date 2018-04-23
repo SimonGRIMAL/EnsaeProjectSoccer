@@ -70,13 +70,13 @@ body <- dashboardBody(
     
     tabItem(tabName = "team",
        fluidRow(
-            box(title="Statistics about home team",
+            box(title="Goals scored and conceded by the home team",
                 status="primary", 
                 solidHeader = TRUE,
                 collapsible = TRUE,
                 textOutput(outputId="NameHTeam"),
                 tags$head(tags$style("#NameHTeam{color: green;
-                                     font-size: 20px;
+                                     font-size: 17px;
                                      font-style: italic;
                                      font-weight: bold;
                                      }")
@@ -84,13 +84,13 @@ body <- dashboardBody(
                 plotOutput(outputId="goalHPlot")
             ),
             
-            box(title="Statistics about away team",
+            box(title="Goals scored and conceded by the away team",
                 status="danger", 
                 solidHeader = TRUE,
                 collapsible = TRUE,
                 textOutput(outputId="NameATeam"),
                 tags$head(tags$style("#NameATeam{color: green;
-                                     font-size: 20px;
+                                     font-size: 17px;
                                      font-style: italic;
                                      font-weight: bold;
                                      }")
@@ -99,27 +99,27 @@ body <- dashboardBody(
             )
       ) ,
       fluidRow(
-        box(title="Statistics about home team",
+        box(title="Attributes of the home team",
             status="primary", 
             solidHeader = TRUE,
             collapsible = TRUE,
-            h3("Attributes of the team",
-               style="color: green;
-               font-size: 20px;
-               font-style: italic;
-               font-weight: bold;"),
+           # h3("Attributes of the team",
+           #    style="color: green;
+           #    font-size: 20px;
+           #    font-style: italic;
+           #    font-weight: bold;"),
             tableOutput(outputId="teamHData")
             ),
         
-        box(title="Statistics about away team",
+        box(title="Attributes of the away team",
             status="danger", 
             solidHeader = TRUE,
             collapsible = TRUE,
-            h3("Attributes of the team",
-               style="color: green;
-               font-size: 20px;
-               font-style: italic;
-               font-weight: bold;"),
+           # h3("Attributes of the team",
+           #    style="color: green;
+           #    font-size: 20px;
+           #    font-style: italic;
+           #    font-weight: bold;"),
             tableOutput(outputId="teamAData")
             )
             ) 

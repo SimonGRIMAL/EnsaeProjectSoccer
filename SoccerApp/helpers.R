@@ -51,15 +51,36 @@ filter_match <- function (nom_table,nom_team_home,nom_team_away){
 
 
 ##############################################################################
-# Fonction mise en forme attrituts de l'équipe
+# Fonction extraction attributs de l'équipe
 ##############################################################################
 
 
-mef_attributes_team <- function (nom_table,where_team){
+extract_attributes_team <- function (nom_table,where_team){
 
     t_nom_table<-as.data.frame(t(nom_table [,51:59]))
-    t_nom_table$v<-rownames(t_nom_table)
+    t_nom_table$v<-c("Build up play speed","Build up play dribbling","Build up play passing","Chance creation passing","Chance creation crossing","Chance creation shooting","Defence pressure","Defence aggression","Defence team width")
     colnames(t_nom_table) <- c(paste("val",where_team,sep='_'),"var")
     t_nom_table<-t_nom_table[,c(2,1)]
     return(t_nom_table)
 }
+
+
+##############################################################################
+# Fonction mise en forme attributs de l'équipe
+##############################################################################
+
+mef_attributes_team <- function(home,away) {
+  
+  mix<- home %>% left_join (away)
+  
+  for(i in 1:9) {
+    if (mix[i,2]> mix[i,3]) { 
+      mix[i,2]<-paste('<div style="color: blue; font-weight: bold; position:absolute"> <span>',mix[i,2], '</span></div>')
+    }
+    else {
+      mix[i,3]<-paste('<div style="color: red; font-weight: bold; position:absolute"> <span>',mix[i,3], '</span></div>')
+    }
+  }
+  return(mix)
+}
+

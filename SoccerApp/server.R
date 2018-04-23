@@ -85,7 +85,7 @@ shinyServer( function(input, output) {
   ############################################
   
   output$NameHTeam <- renderText({
-                      paste("Statistics about",input$ChoixEquipeMaison, "when playing at home")
+                      paste("Number of goals scored and conceced by ",input$ChoixEquipeMaison, "when playing at home")
                                 })
   
   output$goalHPlot <- renderPlot({
@@ -101,7 +101,7 @@ shinyServer( function(input, output) {
       geom_line(size=1) + 
       theme_classic() +
       geom_text(aes(label=value), nudge_y = 1, size=3 ) +
-      labs(title="Number of goals scored and conceded at home by season", x= "Season", y ="Number of goals") +
+      labs(x= "Season", y ="Number of goals") +
       theme(legend.position = "bottom") +
       scale_color_manual(values=c("red", "green"))
     
@@ -110,29 +110,19 @@ shinyServer( function(input, output) {
   output$teamHData <- renderTable({
                  
                 home_team_g <- filter(Team_home_viz,team_long_name==input$ChoixEquipeMaison)
-                home<-mef_attributes_team (home_team_g,"home")
+                home<-extract_attributes_team (home_team_g,"home")
                 
                 away_team_g <- filter(Team_away_viz,team_long_name==input$ChoixEquipeExterieur)
-                away <- mef_attributes_team (away_team_g,"away")
+                away <- extract_attributes_team (away_team_g,"away")
                 
-                
-                mix<- home %>% left_join (away)
-                
-                for(i in 1:9) {
-                  if (mix[i,2]> mix[i,3]) { 
-                    mix[i,2]<-paste('<div style="color: blue; position:absolute"> <span>',mix[i,2], '</span></div>')
-                  }
-                  else {
-                    mix[i,3]<-paste('<div style="color: red; position:absolute"> <span>',mix[i,3], '</span></div>')
-                  }
-                }
-                
-                 return(mix[,c(1,2)])
+                mix<- mef_attributes_team(home,away)
+              
+                return(mix[,c(1,2)])
                 
   }, colnames=FALSE, sanitize.text.function = function(x) x, striped=TRUE)
   
   output$NameATeam <- renderText({
-                      paste("Statistics about",input$ChoixEquipeExterieur, "when playing away")
+                      paste("Number of goals scored and conceced by ",input$ChoixEquipeExterieur, "when playing away")
   })
   
   output$goalAPlot <- renderPlot({
@@ -147,7 +137,7 @@ shinyServer( function(input, output) {
       geom_line(size=1) + 
       theme_classic() +
       geom_text(aes(label=value), nudge_y = 1, size=3 ) +
-      labs(title="Number of goals scored and conceded away by season", x= "Season", y ="Number of goals") +
+      labs(x= "Season", y ="Number of goals") +
       theme(legend.position = "bottom") +
       scale_color_manual(values=c("red", "green"))
     
@@ -156,26 +146,17 @@ shinyServer( function(input, output) {
   output$teamAData <- renderTable({
     
     home_team_g <- filter(Team_home_viz,team_long_name==input$ChoixEquipeMaison)
-    home<-mef_attributes_team (home_team_g,"home")
+    home<-extract_attributes_team (home_team_g,"home")
     
     away_team_g <- filter(Team_away_viz,team_long_name==input$ChoixEquipeExterieur)
-    away <- mef_attributes_team (away_team_g,"away")
+    away <- extract_attributes_team (away_team_g,"away")
     
-    
-    mix<- home %>% left_join (away)
-    
-    for(i in 1:9) {
-      if (mix[i,2]> mix[i,3]) { 
-        mix[i,2]<-paste('<div style="color: blue; position:absolute"> <span>',mix[i,2], '</span></div>')
-      }
-      else {
-        mix[i,3]<-paste('<div style="color: red; position:absolute"> <span>',mix[i,3], '</span></div>')
-      }
-    }
-    
+    mix<- mef_attributes_team(home,away)
     return(mix[,c(1,3)])
-    
+
   }, colnames=FALSE, sanitize.text.function = function(x) x, striped=TRUE)
+  
+  
   
   output$championnatImage <- renderImage({
    filename <- normalizePath(file.path('./img',
