@@ -58,9 +58,13 @@ shinyServer( function(input, output) {
     
     Match <- filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
 
+    #modif position gaol keeper
+    Match$home_player_X1 <- Match$home_player_X1+4
+    Match$away_player_X1 <- Match$away_player_X1+4
+    
     echelle <- 1
-    width<-330 * echelle
-    height<-640 *echelle
+    width<-396 * echelle
+    height<-768 *echelle
     size <- paste(width,'x',height)
     X_home<-(width/10)*t(Match[,12:22])  #calcul coord team home
     Y_home<-(height/2/12)*t(Match[,34:44])
