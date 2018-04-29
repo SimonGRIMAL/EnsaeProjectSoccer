@@ -58,14 +58,14 @@ body <- dashboardBody(
     
     tabItem(tabName = "match",
             box(title = "System of Play",
-                status="primary", 
+                status = "primary",
                 solidHeader = TRUE,
                 collapsible = TRUE,
-              imageOutput("terrainVisu")
+              imageOutput("championnatImage")
               ),
-            box(
-              imageOutput("championnatImage" )
-              )
+
+              imageOutput("terrainVisu")
+            
             ),
     
     tabItem(tabName = "team",
