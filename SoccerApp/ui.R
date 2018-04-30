@@ -61,7 +61,9 @@ body <- dashboardBody(
                 status = "primary",
                 solidHeader = TRUE,
                 collapsible = TRUE,
-              imageOutput("championnatImage")
+                tableOutput(outputId="playerHomeData"),
+                tableOutput(outputId="playerAwayData")
+                
               ),
 
               imageOutput("terrainVisu")
