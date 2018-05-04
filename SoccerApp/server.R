@@ -126,6 +126,16 @@ shinyServer( function(input, output) {
     Players_away
   })
   
+  output$championnatImage <- renderImage({
+    filename <- normalizePath(file.path('./img',
+                                        paste(input$ChoixChampionnat,'.jpg', sep='')))
+    # filename <- "./img/France Ligue 1.jpeg"
+    list(src = filename,
+         alt = paste("image",input$ChoixChampionnat)
+    )
+    
+  }, deleteFile = FALSE)
+  
   
   #tabItem = team (box de droite stats Equipe)
   ############################################
@@ -203,16 +213,62 @@ shinyServer( function(input, output) {
   }, colnames=FALSE, sanitize.text.function = function(x) x, striped=TRUE)
   
   
-  
-  output$championnatImage <- renderImage({
-   filename <- normalizePath(file.path('./img',
-                    paste(input$ChoixChampionnat,'.jpg', sep='')))
-   # filename <- "./img/France Ligue 1.jpeg"
-    list(src = filename,
-        alt = paste("image",input$ChoixChampionnat)
-        )
+  #tabItem = players
+  ############################################
 
-  }, deleteFile = FALSE)
+  output$PlayerH1Data <- renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(2:9),1])
+  }, colnames = FALSE, spacing = 'xs')
   
+  output$PlayerH2Data <- renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(2:9),2])
+  }, colnames = FALSE, spacing = 'xs')
+  
+  output$PlayerH3Data <- renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(2:9),3])
+  }, colnames = FALSE, spacing = 'xs')
+  
+  output$PlayerH4Data <- renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(2:9),4])
+  }, colnames = FALSE, spacing = 'xs')
+  
+  output$PlayerH5Data <- renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(2:9),5])
+  }, colnames = FALSE, spacing = 'xs')
+  
+  output$PlayerH6Data <- renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(2:9),6])
+  }, colnames = FALSE, spacing = 'xs')
+  
+  output$PlayerH7Data <- renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(2:9),7])
+  }, colnames = FALSE, spacing = 'xs')
+  
+  output$PlayerH8Data <- renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(2:9),8])
+  }, colnames = FALSE, spacing = 'xs')
+  
+  output$PlayerH9Data <- renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(2:9),9])
+  }, colnames = FALSE, spacing = 'xs')
+  
+  output$PlayerH10Data <- renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(2:9),10])
+  }, colnames = FALSE, spacing = 'xs')
+  
+  output$PlayerH11Data <- renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(2:9),11])
+  }, colnames = FALSE, spacing = 'xs')
   
 })

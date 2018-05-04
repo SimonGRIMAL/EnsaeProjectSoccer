@@ -84,3 +84,19 @@ mef_attributes_team <- function(home,away) {
   return(mix)
 }
 
+##############################################################################
+# Fonction extraction Attributs des joueurs
+##############################################################################
+
+extract_attributes_player<-function (nom_team_home,nom_team_away){
+  
+  players <- filter_match(Match_Shiny,nom_team_home,nom_team_away)
+  players<- as.data.frame(t(players[,c(56:77)]))
+  colnames(players)<-"player_api_id"
+  
+  players<-players%>%inner_join(Player_viz,by=c("player_api_id"))
+  
+  players<-as.data.frame(t(players))
+  
+}
+

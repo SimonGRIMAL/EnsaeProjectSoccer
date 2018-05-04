@@ -35,6 +35,7 @@ sidebar <- dashboardSidebar(
 
 
 body <- dashboardBody(
+  
   #useShinyjs(),
   tabItems(
     
@@ -122,19 +123,74 @@ body <- dashboardBody(
            #    font-size: 20px;
            #    font-style: italic;
            #    font-weight: bold;"),
-            tableOutput(outputId="teamAData")
+           tableOutput(outputId="teamAData")
             )
             ) 
     ),
     
-    tabItem(tabname = "players",
-            h2("ici stats sur les joueurs")
+    tabItem(tabName = "players",
+        fluidRow(
+            box( width=2,
+                 solidHeader=FALSE,
+                 status="primary",
+                 tableOutput(outputId="PlayerH1Data")
+              ),
+            box( width=2,
+                 solidHeader=FALSE,
+                 status="primary",
+                 tableOutput(outputId="PlayerH2Data")
             ),
+            box( width=2,
+                 solidHeader=FALSE,
+                 status="primary",
+                 tableOutput(outputId="PlayerH3Data")
+            ),
+            box( width=2,
+                 solidHeader=FALSE,
+                 status="primary",
+                 tableOutput(outputId="PlayerH4Data")
+            ),
+            box( width=2,
+                 solidHeader=FALSE,
+                 status="primary",
+                 tableOutput(outputId="PlayerH5Data")
+            ),
+            box( width=2,
+                 solidHeader=FALSE,
+                 status="primary",
+                 tableOutput(outputId="PlayerH6Data")
+            )
+            ),
+        fluidRow(
+          box( width=2,
+               solidHeader=FALSE,
+               status="primary",
+               tableOutput(outputId="PlayerH7Data")
+          ),
+          box( width=2,
+               solidHeader=FALSE,
+               status="primary",
+               tableOutput(outputId="PlayerH8Data")
+          ),
+          box( width=2,
+               solidHeader=FALSE,
+               status="primary",
+               tableOutput(outputId="PlayerH9Data")
+          ),
+          box( width=2,
+               solidHeader=FALSE,
+               status="primary",
+               tableOutput(outputId="PlayerH10Data")
+          ),
+          box( width=2,
+               solidHeader=FALSE,
+               status="primary",
+               tableOutput(outputId="PlayerH11Data")
+          )
+        )
+      ),
     
-    tabItem(tabname = "brokers",
-            h2("ici stats sur les brokers")
-    ),
-    
+
     ###########################################################################################################################################
     
     tabItem(tabName = "modelisation",

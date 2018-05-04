@@ -28,62 +28,21 @@ length(unique(Player_viz$player_api_id))
 test<- Player_Attributes_f%>% group_by(player_api_id) %>%count()%>%filter(n>1)
 test2<-Player_Attributes_f%>% filter(player_api_id %in% c(37254,41308,110189,178196,193866))
 
-Player_viz<-Player_viz[which(!(Player_viz$player_api_id %in% c(37254,41308,110189,178196,193866)&&is.na(c("overal_rating"))),]
-
 Player_viz<-Player_viz[which(!(is.na(Player_viz$overall_rating))),]
 
 
 save(Player_viz,file="data/Player_viz.RData")
 
+#test fonction 
+
+test_m3<- as.data.frame(t(test_m2))
+colnames(test_m3)<-"player_api_id"
+test_m4<-test_m3%>%inner_join(Player_viz,by=c("player_api_id"))
+
+test_m5<-as.data.frame(t(test_m4))
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+t<-extract_attributes_player("Paris Saint-Germain","FC Nantes")
