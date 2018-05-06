@@ -1,0 +1,750 @@
+---
+title: "Kaggle Europe Soccer"
+author: "Nadira ABIDE, Olivier EKAMBI, Simon GRIMAL"
+date: "28 avril 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Parallel computing
+library(doParallel)
+library(parallel)
+nbCores <- detectCores()
+cl <-makeCluster(nbCores - 1)
+registerDoParallel(cl)
+
+# Fichier de données (ajuster le chemin)
+
+load("C:/Users/sg/Documents/Simon/Travail/5-Formations/ENSAE/EnsaeProjectSoccer/SoccerApp/data/MCPT.Rdata")
+```
+
+# Description de l'étude
+
+Nous utilisons une base de données en libre accès sur le football (https://www.kaggle.com/hugomathien/soccer). Cette base de données disponible sous format SQLite contient des informations sur les ligues de football de 11 pays européens pour les saisons 2008/2009 à 2015/2016. L'unité statistique est le match, la base contient pres de 25 000 matchs avec des informations relatives à la constitution des équipes 'home' et 'away', au positionnement des joueurs sur le terrain et aux quotes d'une demi douzaine de bookmakers. 
+En supplément des informations relatives aux matchs, la base contient aussi des informations relatives aux qualités techniques des équipes et des joueurs. 
+
+Nous nous intéressons au résultat du match comme variable de supervision et comparons différents modèles de machine learning dans un but de classification.
+
+## Les données
+
+Les données:
+
+    +25,000 matchs
+    +10,000 joueurs
+    11 ligues européennes
+    Saisons 2008/2009 à 2015/20162016
+    Attributs d'équipes et de joueurs proviennent du jeu vidéo  'EA Sports FIFA' 
+    Données de bookmakers provenant de 10 fournisseurs
+
+
+
+
+
+
+## Protocole de modélisation
+
+
+### Variable à expliquer : Y
+
+Pour chacun des modèle nous voulons prévoir l'issue du match suivant et considérons deux variables explicatives :
+
+* Deux modalités : Victoire à domicile (probabilité a priori de 46%) et absence de victoire à domicile (probabilité a priori de 54%).
+
+```{r, eval= TRUE, echo=TRUE}
+table(MCPT$goal_diff_class2)
+```
+
+* Trois modalités : Victoire à domicile (46%), match nul (25%) et défaite à domicile (29%)
+
+```{r, eval= TRUE, echo=TRUE}
+table(MCPT$goal_diff_class3)
+```
+
+### Variables explicatives : X
+
+L'unité statistique retenue est le match et nous utilisons une centaine de variables explicatives relatives aux deux équipes qui s'affrontent sur le terrain. Les données explicatives sont regroupées en quatre catégories :
+
+* Quotes de différents bookmakers (B365 = Bet365, BW = Bet&Win, IW = Blue Square, LB = Ladbrokes H = Home, D = Draw, A = Away)
+
+```{r, eval= TRUE, echo=TRUE}
+summary(MCPT[,6:17])
+```
+
+* Configuration de matchs : nombre de joueurs sur les différentes lignes de jeu (attaque, milieu de terrain, défense) pour chacune des deux équipes
+
+```{r, eval= TRUE, echo=TRUE}
+summary(MCPT[,18:21])
+```
+
+* Caractéristiques techniques des joueurs (avec agrégation par équipes)
+
+```{r, eval= TRUE, echo=TRUE}
+summary(MCPT[,22:29])
+```
+
+* Caractéristiques techniques des équipes
+
+```{r, eval= TRUE, echo=TRUE}
+summary(MCPT[,38:72])
+```
+
+### Les modèles 
+
+Nous testons les dix modeles de classification ci dessous :
+
+* log : régression logistique standard
+* lasso : régression logistique avec régularisation LASSO
+* lda : analyse linéaire discriminante
+* qda : analyse quadratique discriminante
+* knn : k plus proches voisins
+* tree : arbre de décision standard
+* bag : bagging d'arbres de décisions
+* rndfrst : forêt aléatoire
+* boost : boosting d'arbres de décisions
+* svm : machine à vecteurs support
+
+### Echantillons d'apprentissages et de tests
+
+* Echantillon d'apprentissage : six premieres saisons, soit environ 15000 matchs
+* Echantillon de test : deux dernieres saisons, soit environ 5000 matchs
+
+```{r, eval= TRUE, echo=TRUE}
+unique(MCPT$season)
+train <- MCPT$season %in% c("2008/2009","2009/2010","2010/2011","2011/2012","2012/2013","2013/2014")
+sum(train)
+test <- MCPT$season %in% c("2014/2015","2015/2016")
+sum(test)
+```
+
+### Resulats des modeles
+
+
+
+* Classification à deux modalités :
+    + *Courbe de ROC* et *AUC* (area under curve)
+    + *Matrice de confusion* et *ACCURACY* (Taux de bonne prédiction) 
+
+
+* Classification à trois modalités :
+    + *Matrice de confusion* et *ACCURACY* (Taux de bonne prédiction)
+
+
+## Modele 1 : Regression logistique standard
+
+
+
+### Principe de modélisation
+
+La regression logistique ou modele logit standard est bien adaptée pour des problemes de classification à deux modalités
+* Victoire a domicile ? 
+    + OUI avec une probabilité *p*
+    + NON avec une probabilité *1-p*
+
+Plutot que de modéliser la variable binaire 'Victoire à domicile (OUI/NON)', la régression logistique s'intéresse à la probabilité *p* de victoire à domicile et considère le log-odds ratio (ou logit) comme variable à expliquer. Dans le cadre du modèle linéaire généralisé, nous faisons l'hypothèse que le logit peut être estimé comme une combinaison linéaire des variables explicatives.
+
+$$log(p/(1-p)) = \beta o +\sum_{i=1}^p \beta i  X_i$$
+Les parametres du modele $$ \hat{\beta o},  \hat{\beta 1},  \hat{\beta 2}, ...,  \hat{\beta p}  $$
+
+
+sont estimés par la méthode du maximum de vraisemblance. (Minimisation de l'inverse de la log vraisemblance L en pratique) 
+
+$$ L = - log ( \prod_{i:Yi =1} p(Xi)  \prod_{j:Yj=0} (1-p(Xj))) $$
+et la regle de decision consiste à déterminer un seuil pour la probabilité estimée de victoire à domicile. 
+
+
+$$ \hat{p(X)} =  \frac{\exp(\hat{\beta o} + \sum_{i=1}^p \hat{\beta i}  X_i)}{1 + \exp(\hat{\beta o} + \sum_{i=1}^p \hat{\beta i}  X_i)} $$
+
+### Calibrage du modele
+
+Le calibrage du modèle se fait en utilisant la fonction *glm* avec l'option *family = binomial*
+
+```{r, eval= TRUE, echo=TRUE}
+
+mydata <-MCPT[,c(4,6:ncol(MCPT))]
+logit2 <- glm(goal_diff_class2~., data=mydata,subset=train,family="binomial")
+```
+
+Coefficients les plus significatifs (Z-score)
+
+```{r, eval= TRUE, results='hide'}
+logit2.sum <- summary(logit2)
+logit2.sum$coefficients[,1:4]
+```
+
+Vu le grand nombre de variables explicatives, nous effectuons un tri des prédicteurs suivant le z-score et n'affichons que les 10 variables ayant la plus forte influence negative sur la probabilité de victoire a domicile.
+
+```{r, eval= TRUE, echo=TRUE}
+order <- order(logit2.sum$coefficients[,3])
+head(logit2.sum$coefficients[order,1:4],10)
+```
+
+ainsi que les 10 variables ayant la plus forte influence positive sur cette meme probabilité.
+
+```{r, eval= TRUE, echo=TRUE}
+tail(logit2.sum$coefficients[order,1:4],10)
+```
+
+
+### Apprentissage
+
+Pour rappel, le modele est estimé sur l'échantillon d'apprentissage (6 premieres saisons, 15000 matchs). Le seuil de décision est arbitrairement déterminé à 0.5. Pour le seuil de décision retenu, et en ayant à l'esprit un éventuel biais de surapprentissage, le taux de bonne prédiction est de 65%. Pour référence, une règle de décision naïve consitant à systématiquement prévoir la non-victoire à domicile aurait un taux de bonne prédiction égal à 54%.
+
+```{r, eval= TRUE, echo=TRUE}
+logit2.predprob <- predict(logit2,type="response")
+logit2.predclass <-rep("1home_draworloss", sum(train))
+logit2.predclass[logit2.predprob >0.5]<-"2home_win"
+table(logit2.predclass,mydata$goal_diff_class2[train],dnn=c("prediction","reality"))
+mean(logit2.predclass==mydata$goal_diff_class2[train])
+```
+
+### Test
+
+Les résulats du modèle sont conservés et même légèrement améliorés en considérant l'échantillon de test. 
+
+```{r, eval= TRUE, echo=TRUE}
+logit2.predict <- predict(logit2,newdata=mydata[test,],type="response")
+logit2.pred <-rep("1home_draworloss", sum(test))
+logit2.pred[logit2.predict >.5]<- "2home_win"
+table(logit2.pred,mydata$goal_diff_class2[test],dnn=c("prediction","reality"))
+mean(logit2.pred==mydata$goal_diff_class2[test])
+```
+
+### Courbe ROC
+
+La courbe ROC permet de visualiser simultanément les deux types d'erreurs (taux de faux positifs et taux de faux négatifs)pour toutes les valeurs possibles du seuil de décision. L'aire sous la courbe (ici 0.7091) est un indicateur synthétique de la qualité du modèle.
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(pROC)
+logit2.roc <- roc(mydata$goal_diff_class2[test], logit2.predict)
+plot(logit2.roc,col="blue", lwd=2, xlim=c(1,0),main="Regression logistique (ROC)")
+logit2.roc$auc
+```
+
+## Modele 2 : Regression logistique avec régularisation LASSO
+
+
+
+### Principe de modélisation
+
+Nous restons dans le cadre de la régression logistique mais utilisons une procédure d'estimation différente afin de prévenir une éventuelle instabilité des paramètres susceptible de détériorer son pouvoir prédictif. De plus, et au vu du nombre relativement important de prédicteurs, la régression logistique standard est difficile à interpréter. 
+Il existe de nombreuses alternatives pour effectuer de la sélection de variables (sélection de modèles, réduction de la dimension et régularisation), nous retenons l'approche de régularisation LASSO qui vise à minimiser l'inverse de la log vraisemblance (L) tout en pénalisant la valeur absolue des parametres du modele. A l'inverse de la pénalisation ridge qui agit sur le carré des coefficients, la pénalisation LASSO permet l'annulation complète des paramètres relatifs aux variables les moins significatives.
+
+$$ L + \lambda \sum_{i=1}^p |\beta i| $$
+Le paramètre de régularisation (*lambda*) est obtenu de façon à minimiser l'erreur de prédiction out of sample par validation croisée.
+
+### Calibrage du modèle
+
+Le modèle est estimé en utilisant la fonction *cv.glmnet* du package *glmnet* avec l'option *family = binomial* pour bien spécifier que nous sommes dans le cadre d'une régression logistique. Nous éditons également le paramètre *lambda* retenu ainsi que la liste des 15 premiers coefficients pour bien illustrer la sélection de variables. Au total, sur les 102 variables proposées, seules 18 sont retenues par le modèle LASSO. La procédure de régularisation a annulé 84 coefficients ce qui permet une bien meilleure lisibilité du modèle. Quid du pouvoir prédictif ?
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+
+library(glmnet)
+set.seed(1)
+mydata <-MCPT[,c(4,6:ncol(MCPT))]
+x <- as.matrix(mydata[train,-1])
+y <- mydata[train,1]
+cvglmnet2 <- cv.glmnet(x,y,family="binomial",alpha=1)
+plot(cvglmnet2)
+cvglmnet2$lambda.min
+head(coef(cvglmnet2, s = "lambda.min"),15)
+```
+
+### Apprentissage
+
+En échantillon d'apprentissage,la régression logistique avec régularisation LASSO donne des résultats comparables à ceux de la régression logistique standard.
+Le taux de bonne prévisons (0.6515) est tres legerement inferieur a celui de la regression logistique (0.6524)
+
+```{r, eval= TRUE, echo=TRUE}
+cvglmnet2.predclass <- predict(cvglmnet2, newx = as.matrix(mydata[train,-1]), type = "class", s = "lambda.min")
+cvglmnet2.predprob <- predict(cvglmnet2, newx = as.matrix(mydata[train,-1]), type = "response", s = "lambda.min")
+table(cvglmnet2.predclass,mydata$goal_diff_class2[train],dnn=c("prediction","reality"))
+mean(cvglmnet2.predclass==mydata$goal_diff_class2[train])
+```
+
+### Test
+
+En échantillon de test, les résultats sont légèrement améliorés avec un taux de bonne prévision égal à 0.6627 contre 0.6554 dans le cas de la régression logistique standard. 
+
+```{r, eval= TRUE, echo=TRUE}
+cvglmnet2.predclass <- predict(cvglmnet2, newx = as.matrix(mydata[test,-1]), type = "class", s = "lambda.min")
+cvglmnet2.predprob <- predict(cvglmnet2, newx = as.matrix(mydata[test,-1]), type = "response", s = "lambda.min")
+table(cvglmnet2.predclass,mydata$goal_diff_class2[test],dnn=c("prediction","reality"))
+mean(cvglmnet2.predclass==mydata$goal_diff_class2[test])
+```
+
+### Courbe ROC
+
+Les deux modèles sont globalement équivalents lorsque l'on considère tous les seuils de décision. L'aire sous la courbe ROC est 0.7141 dans le cas de la régularisation LASSO contre 0.7091 pour la régression logistique standard. Nous en concluons que même si la régularisation LASSO permet tres légère amélioration du pouvoir prédictif du modèle, son principal avantage dans le cas précis est d'augmenter la lisibilité du modèle en annulant 84 des 102 paramètres associés au variables explicatives.
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(pROC)
+cvglmnet2.roc <- roc(mydata$goal_diff_class2[test], as.vector(cvglmnet2.predprob))
+plot(cvglmnet2.roc,col="blue", lwd=2, xlim=c(1,0),main="Regression logistique LASSO (ROC)")
+cvglmnet2.roc$auc
+```
+
+## Modele 3 : Analyse linéaire discriminante (ALD)
+
+
+
+### Principe de modélisation
+
+L'analyse linéaire discriminante consiste à effectuer des hypothèses sur la distribution des prédicteurs à l'intérieur de chacune des classes - on suppose que le vecteur des prédicteurs *X = (X1, X2, ...Xp)* suit une loi avec potentiellement des  moyennes différentes pour chacune des deux classes mais  des matrices de covariance identiques.
+$$ X =(X_1, X_2, ..., X_p) ~~suit~~ N(\mu_1, \Sigma)~~dans~la~classe~1~et~$$
+$$ X =(X_1, X_2, ..., X_p) ~~suit~~ N(\mu_2, \Sigma)~~dans~la~classe~2. $$ 
+Le principe de  l'ALD consiste à utiliser la règle de Bayes qui consiste à affecter un individu X = x à la classe k la plus probable (ici k = 1 ou 2) en tenant compte des probabilités d'appartenance aux classes a priori (frequences d'appartenance) et des densités de distributions pour chacune des classes.
+$$ Pr(Y = k/X = x)~=~\frac{\pi_k~f_k(x)}{\sum_{l=1}^2~\pi_l~f_l(x)}  $$
+En explicitant les calculs de densité on peut montrer que la règle de décision est linéaire en x, d'où le nom de la méthode.
+$$ \hat{\delta_k}(x) ~=~x~.~\frac{\hat{\mu_k}}{\hat{\sigma}^2}~-~ ~\frac{\hat{\mu_k}^2}{2\hat{\sigma}^2}~+~log(\hat{\pi_k})$$
+
+### Calibrage du modèle
+
+Le modele est estimé en utilisant la fonction *lda* du package *MASS*
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(MASS)
+mydata <- MCPT[,c(4,6:ncol(MCPT))]
+lda2 <- lda(goal_diff_class2~., data=mydata,subset=train)
+```
+
+### Apprentissage
+
+Avec un taux de bonne prévision de 0.6548, les résultats en apprentissage sont semblables à ceux obtenus pour les modèles de régression logistique standard et LASSO.
+
+```{r, eval= TRUE, echo=TRUE}
+lda2.predclass <- predict(lda2,mydata[train,])$class
+lda2.predprob <- predict(lda2,mydata[train,])$posterior
+table(lda2.predclass,mydata$goal_diff_class2[train],dnn=c("prediction","reality"))
+mean(lda2.predclass==mydata$goal_diff_class2[train])
+```
+
+### Test
+
+Ce taux de bonne prévision est très légèrement amélioré lors du passage à l'échantillon de test (0.6554 contre 0.6548), ce résultat est en ligne avec les performances des modèles présentés précédemment.
+
+```{r, eval= TRUE, echo=TRUE}
+lda2.predclass <- predict(lda2,mydata[test,])$class
+lda2.predprob <- predict(lda2,mydata[test,])$posterior
+table(lda2.predclass,mydata$goal_diff_class2[test],dnn=c("prediction","reality"))
+mean(lda2.predclass==mydata$goal_diff_class2[test])
+```
+
+### Courbe ROC
+
+L'aire sous la courbe (auc) est de 0.7066 ce qui traduit un pouvoir prédictif similaire (quoi que légèrement inférieur) à ceux des modèles de régression logistique présentés précédemment. Ce résultat est en ligne avec la proximité méthodologique des méthodes d'analyse discriminante et de régression logistique.
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(pROC)
+lda2.roc <- roc(mydata$goal_diff_class2[test], as.vector(lda2.predprob[,1]))
+plot(lda2.roc,col="blue", lwd=2, xlim=c(1,0),main="Linear Discriminant Analysis (ROC)")
+lda2.roc$auc
+```
+
+## Modele 4 : Analyse quadratique discriminante (AQD)
+
+
+### Principe de modélisation
+
+L'analyse quadratique discriminante est proche l'analyse linéaire discriminante dans son principe : elle effectue des hypothèses  sur la distribution conjointe des prédicteurs et utilise la règle de Bayes pour calculer des probabilités conditionnelles d'appartenance aux différentes classes. Tout comme l'ALD, l'AQD suppose que le vecteur des prédicteurs *X = (X1, X2, ...Xp)* suit une loi multinormale à l'intérieur de chacune des classes. A la différence de l'ALD, l'AQD ne pose pas de restriction sur les matrices de covariance. Bien que restant dans le cadre de la normalité, les distributions des différentes classes peuvent avoir des paramètres de moyennes et de variance différents.
+
+$$ X =(X_1, X_2, ..., X_p) ~~suit~~ N(\mu_1, \Sigma_1)~~dans~la~classe~1~et~$$
+$$X =(X_1, X_2, ..., X_p) ~~suit~~ N(\mu_2, \Sigma_2)~~dans~la~classe~2. $$ 
+
+
+
+Tout comme pour l'ALD, le principe de  l'ALD consiste à utiliser la règle de Bayes qui consiste à affecter un individu X = x à la classe k la plus probable (ici k = 1 ou 2) en tenant compte des probabilités d'appartenance aux classes a priori (frequences d'appartenance) et des densités de distributions pour chacune des classes.
+
+$$Pr(Y = k/X = x)~=~\frac{\pi_k~f_k(x)}{\sum_{l=1}^2~\pi_l~f_l(x)}  $$
+
+En explicitant les calculs de densité (et du fait de matrices de covariance différentes), on calcule une règle de décision qui n'est plus une fonction linéaire mais plutôt une fonction quadratique des prédicteurs.
+
+$$ \delta_k(x) ~=~-\frac{1}{2}(x-\mu_k)^T\Sigma^{-1}_k(x-\mu_k)~-\frac{1}{2}log |\Sigma_k|  +~log({\pi_k}) $$
+
+### Calibrage du modèle
+
+L'estimation du modèele se fait en utilisant la fonction *qda* du package *MASS*
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(MASS)
+mydata <- MCPT[,c(4,6:ncol(MCPT))]
+qda2 <- qda(goal_diff_class2~., data=mydata,subset=train)
+```
+
+
+### Apprentissage
+
+Avec un taux de bonne prédiction, les résultats In Sample sont meilleurs que ceux obtenus avec les autres modèles présentés jusqu'ici.
+
+```{r, eval= TRUE, echo=TRUE}
+qda2.predclass <- predict(qda2,mydata[train,])$class
+qda2.predprob <- predict(qda2,mydata[train,])$posterior
+table(qda2.predclass,mydata$goal_diff_class2[train],dnn=c("prediction","reality"))
+mean(qda2.predclass==mydata$goal_diff_class2[train])
+```
+
+### Test
+
+malheureusement les résultats du modèle dans l'échantillon de test ne sont pas à la hauteur de ceux obtenus en apprentissage traduisant un sur-apprentissag du modèle.
+
+```{r, eval= TRUE, echo=TRUE}
+qda2.predclass <- predict(qda2,mydata[test,])$class
+qda2.predprob <- predict(qda2,mydata[test,])$posterior
+table(qda2.predclass,mydata$goal_diff_class2[test],dnn=c("prediction","reality"))
+mean(qda2.predclass==mydata$goal_diff_class2[test])
+```
+
+### Courbe ROC
+
+L'AQD donne globalement des résultats légèrement moins bons que ceux obtenus par L'ALD. Le relâchement de l'hypothèse d'égalité des matrices de covariance entre les deux classes ne permet pas d'améliorer le pouvoir prédictif du modèle (auc = 0.6959).
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(pROC)
+qda2.roc <- roc(mydata$goal_diff_class2[test], as.vector(qda2.predprob[,1]))
+plot(qda2.roc,col="blue", lwd=2, xlim=c(1,0),main="Linear Discriminant Analysis (ROC)")
+qda2.roc$auc
+```
+
+## Modele 5 : k plus proches voisins (knn)
+
+
+
+### Principe de modélisation
+
+La méthode des k plus proches voisins est une méthode de classification non paramétrique. Pour un individu donné xo à classifier, le principe de l'algorithme consiste à identifier ses k plus proches voisins (en utilisant une métrique Euclidienne standard) et à affecter l'individu à la classe majoritairement représentée dans ce voisinage *No*.
+
+$$ Pr(Y=j/X=x_0)=\frac{1}{K}\sum_{i~\in~N_0}I(y_i=j)  $$
+
+### Calibrage du modele
+
+Les prédicteurs sont standardisés pour éviter d'éventuels problèmes liés à l'échelle des variables dans le calcul des distances.
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(class)
+mydata.Y <-  MCPT[,4]
+mydata.X <-  scale(MCPT[,c(6:ncol(MCPT))])
+train.X <- mydata.X[train,]
+test.X <-  mydata.X[test,]
+train.Y <- mydata.Y[train]
+test.Y <-  mydata.Y[test]
+```
+
+### Apprentissage
+
+```{r, eval= TRUE, echo=TRUE}
+set.seed(1)
+knn2.predict = knn(train=train.X, test=train.X, cl=train.Y,k=100, prob=TRUE,use.all=TRUE)
+table(knn2.predict,train.Y,dnn=c("prediction","reality"))
+mean(knn2.predict==train.Y)
+```
+
+### Test
+
+```{r, eval= TRUE, echo=TRUE}
+knn2.predict = knn(train=train.X, test=test.X, cl=train.Y,k=100, prob=TRUE,use.all=TRUE)
+table(knn2.predict,test.Y,dnn=c("prediction","reality"))
+mean(knn2.predict==test.Y)
+```
+
+### Courbe ROC
+
+La fonction knn ne retournant pas de probabilités d'appartenance aux différentes classes, un travail spécifique est nécessaire pour le calcul de la courbe ROC.
+
+```{r, eval= TRUE, echo=TRUE,message=FALSE}
+
+```
+
+## Modele 6 : Arbre de décision
+
+
+
+### Principe de modélisation
+
+Un arbre de décision consiste à effectuer un partitionnement relativement frustre de l'espace des prédicteurs. Pour une nouvelle observation à classifier, la méthode consiste à identifier la région (ou segment de l'espace) à laquelle appartient cette observation et à lui affecter la classe majoritairement représentée au sein de ce segment. Les règles de décision succesives visant partitionner l'espace des prédicteurs peut être représenté sous une forme d'arbre d'où l'appelation de la méthode. Bien que tres intuitive et simple à mettre en oeuvre, les arbres de décision souffrent généralement d'une forte instabilité et leur pouvoir prédictif est généralement limité. Cependant, les approches de bagging et de boosting permettent de pallier en considérant en utilisant l'arbre de décision comme une brique élémentaire d'une approche plus large.
+
+### Calibrage du modèle
+
+Le calibrage du modele est fait en utilisant la fonction *tree* du package *tree*. L'arbre obtenu met en évidence le rôle prépondérant joué par la variable B365H (Odds ratio de l'équipe à domicile pour le bokmaker Bet 365) qui est le seul prédicteur à intégrer le modèle. Ceci illustre bien la nécessité de "forcer" le modèle à considérer les autres prédicteurs.
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(tree)
+mydata <- MCPT[,c(4,6:ncol(MCPT))]
+tree2.fit <-tree(goal_diff_class2~.,data=mydata,subset=train,split=c("deviance","gini"))
+summary(tree2.fit)
+plot(tree2.fit)
+text(tree2.fit,pretty=0)
+```
+
+### Apprentissage
+
+Il peut sembler surprenant de constater qu'un arbre de décision relativement simple (trois branches) donne des résultats proches de ceux obtenus avec des modélisations plus complexes.
+
+```{r, eval= TRUE, echo=TRUE}
+tree2.predclass <- predict(tree2.fit,mydata[train,],type="class")
+tree2.predprob <- predict(tree2.fit,mydata[train,],type="vector")
+table(tree2.predclass,mydata$goal_diff_class2[train],dnn=c("prediction","reality"))
+mean(tree2.predclass==mydata$goal_diff_class2[train])
+```
+
+### Test
+
+Avec un taux de bonne prédiction de 66%, ces résultats sont validés en échantillon de test
+
+```{r, eval= TRUE, echo=TRUE}
+tree2.predclass <- predict(tree2.fit,mydata[test,],type="class")
+tree2.predprob <- predict(tree2.fit,mydata[test,],type="vector")
+table(tree2.predclass,mydata$goal_diff_class2[test],dnn=c("prediction","reality"))
+mean(tree2.predclass==mydata$goal_diff_class2[test])
+```
+
+### Courbe ROC
+
+Même si la mesure d'auc (0.6859) reste plus faible que celles obtenues avec des modélisations plus compliquées.
+
+```{r, eval= TRUE, echo=TRUE,message=FALSE}
+library(pROC)
+tree2.roc <- roc(mydata$goal_diff_class2[test], as.vector(tree2.predprob[,2]))
+plot(tree2.roc,col="blue", lwd=2, xlim=c(1,0),main="Classification tree (ROC)")
+tree2.roc$auc
+```
+
+## Modele 7 : Bagging d'arbres de décision
+
+
+### Principe de modélisation
+
+Nous utilisons le Bagging d'arbres comme un moyen de pallier le caractère instable de chaque arbre pris individuellement. La méthode consiste à utiliser les techniques de bootstrapping pour entraîner plusieurs arbres de décision sur des sous-échantillons différents de l'échantillon d'apprentissage. Les résultats des différents arbres sont ensuite agrégés et la classification finale se fait par un vote à la majorité. La procédure permet d'améliorer la qualité de la prédiction en réduisant la variance. 
+
+### Calibrage du modèle
+
+Le modele est calibré en utilisant la fonction *randomForest* du )package *randomForest* avec le poaramètre *mtry* égal au nombre de prédicteurs (102 dans notre cas). Par défaut, le modèle considère 500 arbres construits à partir de l'ensemble complet des 102 prédicteurs.
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(randomForest)
+mydata <- MCPT[,c(4,6:ncol(MCPT))]
+set.seed(1)
+Bag2 <-randomForest(goal_diff_class2~.,data=mydata,subset=train,mtry=ncol(mydata)-1)
+```
+
+On mesure l'importance des prédicteurs en calculant la détérioration de la classification(sur la base de l'indice de pureté de Gini) liée à la suppression d'un indicateur. Même si la variable B365H n'est plus l'unique variable considérée, elle conserve cependant une importance prépondérante dans le modèle de bagging.
+
+```{r, eval= TRUE, echo=TRUE}
+barplot(head(Bag2$importance[order(Bag2$importance,decreasing=TRUE),],10),cex.names=0.8)
+```
+
+### Apprentissage
+
+```{r, eval= TRUE, echo=TRUE}
+Bag2.predclass <- predict(Bag2,data=mydata[train,],type="response")
+Bag2.predprob <- predict(Bag2,data=mydata[train,],type="prob")
+table(Bag2.predclass,mydata$goal_diff_class2[train],dnn=c("prediction","reality"))
+mean(Bag2.predclass==mydata$goal_diff_class2[train])
+```
+
+### Test
+
+```{r, eval= TRUE, echo=TRUE}
+Bag2.predclass <- predict(Bag2,newdata=mydata[test,],type="response")
+Bag2.predprob <- predict(Bag2,newdata=mydata[test,],type="prob")
+table(Bag2.predclass,mydata$goal_diff_class2[test],dnn=c("prediction","reality"))
+mean(Bag2.predclass==mydata$goal_diff_class2[test])
+```
+
+### Courbe ROC
+
+La qualité globale du modèle de bagging (auc=0.7004) est supérieure à celle obtenu par le modèle à un arbre de décision (auc=0.6859) mais reste cependant inférieure aux résultats obtenus par les modèles logistiques et d'analyse discriminante.
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(pROC)
+Bag2.roc <- roc(mydata$goal_diff_class2[test], Bag2.predprob[,2])
+plot(Bag2.roc,col="blue", lwd=2, xlim=c(1,0),main="Bagging of trees (ROC)")
+Bag2.roc$auc
+```
+
+## Modele 8 : Forêt aléatoire
+
+
+### Principe de modélisation
+
+Le principe est similaire au bagging d'arbres, à la différence notable que dans le cas de la forêt aléatoire, un double tirage aléatoire est effectué pour chacun des arbres. En effet chaque arbre est entraîné à partir d'un ensemble restreint de variables choisies aléatoirement(10 dans le cas présent) et sur un échantillon bootstrap de l'échantillon d'apprentissage. Il en résulte une plus forte décorrélation des différents arbres dans la mesure où la nature du modèle garantit un "équilibre"" de l'importance relative des différents prédicteurs.
+
+### Calibrage du modèle
+
+Le modele est calibré en utilisant la fonction *randomForest* du package *randomForest* avec le poaramètre *mtry* égal à 10. Par défaut, le modèle considère 500 arbres construits à partir d'un ensemble de 10 prédicteurs al&atoirement sélectionnés parmi les 102 de départ.
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(randomForest)
+mydata <- MCPT[,c(4,6:ncol(MCPT))]
+set.seed(1)
+Forest2 <-randomForest(goal_diff_class2~.,data=mydata,subset=train,mtry=10)
+```
+
+L'indicateur d'importance des prédicteurs fait ressortir un meilleur équilibre des variables utilisées pour la construction des arbres. Le rôle dominant de la variable B365H est très largement atténué par la procédure de sélection aléatoire des prédicteurs.
+
+```{r, eval= TRUE, echo=TRUE}
+barplot(head(Forest2$importance[order(Forest2$importance,decreasing=TRUE),],10),cex.names=0.8)
+```
+
+### Apprentissage
+
+```{r, eval= TRUE, echo=TRUE}
+Forest2.predclass <- predict(Forest2,data=mydata[train,],type="response")
+Forest2.predprob <- predict(Forest2,data=mydata[train,],type="prob")
+table(Forest2.predclass,mydata$goal_diff_class2[train],dnn=c("prediction","reality"))
+mean(Forest2.predclass==mydata$goal_diff_class2[train])
+```
+
+### Test
+
+```{r, eval= TRUE, echo=TRUE}
+Forest2.predclass <- predict(Forest2,newdata=mydata[test,],type="response")
+Forest2.predprob <- predict(Forest2,newdata=mydata[test,],type="prob")
+table(Forest2.predclass,mydata$goal_diff_class2[test],dnn=c("prediction","reality"))
+mean(Forest2.predclass==mydata$goal_diff_class2[test])
+```
+
+### Courbe ROC
+
+La qualité globale du modèle de Forêt aléatoire (auc=0.7094) est très légèrement supérieure à celle obtenu par les modèles de bagging (auc=0.7004) et par l'arbre de décision (auc=0.6859). 
+
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(pROC)
+Forest2.roc <- roc(mydata$goal_diff_class2[test], Forest2.predprob[,2])
+plot(Forest2.roc,col="blue", lwd=2, xlim=c(1,0),main="Random forest (ROC)")
+Forest2.roc$auc
+```
+
+## Modele 9 : Boosting d'arbres
+
+Comme pour le bagging, le boosting agrège de façon séquentielle des arbres de décision. En attribuant un poids plus important aux observations mal classifiées à l'étape précédente, la procédure de boosting "oriente" le modèle dans les directions où son pouvoir prédictif est faible et le force à améliorer son pouvoir prédictif.
+
+### Calibrage du modèle
+
+Nous utilisons la fonction *boosting* du package *adabag*
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(adabag)
+mydata <- MCPT[,c(4,6:ncol(MCPT))]
+set.seed(1)
+adaboost2 <-boosting(goal_diff_class2~.,data=mydata[train,],boos=TRUE,coeflearn='Breiman')
+```
+
+### Apprentissage
+
+```{r, eval= TRUE, echo=TRUE}
+adaboost2.pred <- predict(adaboost2,newdata=mydata[train,])
+table(adaboost2.pred$class,mydata$goal_diff_class2[train],dnn=c("prediction","reality"))
+mean(adaboost2.pred$class==mydata$goal_diff_class2[train])
+```
+
+### Test
+
+```{r, eval= TRUE, echo=TRUE}
+adaboost2.pred <- predict(adaboost2,newdata=mydata[test,])
+table(adaboost2.pred$class,mydata$goal_diff_class2[test],dnn=c("prediction","reality"))
+mean(adaboost2.pred$class==mydata$goal_diff_class2[test])
+```
+
+### Courbe de ROC
+
+La qualité globale du modèle de boosting (auc=0.7104) est très légèrement supérieure à celle obtenu par les modèles de forêt aléatoire (auc=0.7094)
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(pROC)
+adaboost2.roc <- roc(mydata$goal_diff_class2[test], adaboost2.pred$prob[,2])
+plot(adaboost2.roc,col="blue", lwd=2, xlim=c(1,0),main="boosting of trees (ROC)")
+adaboost2.roc$auc
+```
+
+## Modele 10 : Machine à vecteurs supports
+
+
+Les SVM représentent une approche originale datant des années 1990. Le principe consite à trouver un hyperplan séparateur dans l'espace des prédicteurs et utiliser cet hyperplan comme une frontière de décision. Cet hyper plan est choisi de façon optimale afin que la règle de décision soit la plus stable possible. Dans le cas où les variables ne sont pas séparables linéairement, le kernel trick permet d'étendre l'espace des prédicteurs par des transformations fonctionnelles (polynomiale, radiale, ...) et d'appliquer une séparation linéairedans un espace étendu, ce qui revient à appliquer une transformation non linéaire dans l'espace de départ.
+
+### Principe de la méthode
+
+
+### Calibrage du modèle
+
+Le paramètre cost est obtenu par validation croisée.
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(e1071)
+mydata <- MCPT[,c(4,6:ncol(MCPT))] 
+set.seed(1)
+SVM2 <-svm(goal_diff_class2~.,data=mydata,subset=train,kernel="linear",scale=TRUE,cost=0.001,decision.values=TRUE)
+summary(SVM2)
+```
+
+### Apprentissage
+
+```{r, eval= TRUE, echo=TRUE}
+SVM2.pred <- predict(SVM2,newdata=mydata[train,],decision.values = TRUE)
+table(SVM2.pred,mydata$goal_diff_class2[train],dnn=c("prediction","reality"))
+mean(SVM2.pred==mydata$goal_diff_class2[train])
+```
+
+### Test
+
+```{r, eval= TRUE, echo=TRUE}
+SVM2.pred <- predict(SVM2,newdata=mydata[test,],decision.values = TRUE)
+table(SVM2.pred,mydata$goal_diff_class2[test],dnn=c("prediction","reality"))
+mean(SVM2.pred==mydata$goal_diff_class2[test])
+```
+
+### Courbe de ROC
+
+```{r, eval= TRUE, echo=TRUE, message=FALSE}
+library(pROC)
+SVM2.roc <- roc(mydata$goal_diff_class2[test], as.vector(attr(SVM2.pred,"decision.values")))
+plot(SVM2.roc,col="blue", lwd=2, xlim=c(1,0),main="Support Vector Machine (ROC)")
+SVM2.roc$auc
+```
+
+## Résultats de la modélisation
+
+
+### Deux classes
+
+* Avec des taux de bonne prédiction autour de 65% et des courbes ROC globalement similaires, tous les modèles donnent grosso modo des résultats comparables. Les taux de bonne prédiction obtenus sont à comparer à un benchmark de 54% pour le classifieur naïf consistant à systématiquement prédire la deuxième modalité (Pas de victoire à domicile).
+
+* Le modèle de régression logistique avec pénalisation LASSO donne la meilleure qualité de prédiction tandis que le modèle d'analyse discriminante quadratique donne les moins bons résultats.
+
+* Il est notable de constater que le modèle d'arbre de décision, bien que simpliste (un seul prédicteur pris en compte)affiche un taux de bonne prédiction en ligne, même si le modèle se classe en dernière position lorsque l'on considère le critère de l'auc.
+
+
+```{r, eval= TRUE, echo=TRUE}
+Resultats2 <- data.frame(c(0.7091,0.7141,0.7066,0.6959,NA,0.6853,0.7004,0.7094,0.7104,0.7085),c(0.6554,0.6627,0.6554,0.6443,0.6443,0.6606,0.6513,0.6562,0.6560,0.6548))
+colnames(Resultats2) <- c("auc","accuracy")
+rownames(Resultats2) <- c("log","lasso","lda","qda","knn","tree","bag","rndfrst","boost", "svm")         
+plot(Resultats2,xlim=c(0.68,0.72),ylim=c(0.64,0.67), main ="Resultats des modeles (2 classes)", col="blue")
+text(Resultats2,label=row.names(Resultats2),cex=1,pos=1, col="blue")
+```
+
+### Trois classes
+
+* Avec un taux de bonne prédiction autour de 52%, le pouvoir prédictif de tous les modeles étudiés décroit significativement lorsque l'on considère une classification à trois modalités (Victoire à domicile, match nul, Défaite à domicile). Ceci témoigne de la difficulté à séparer les trois classes et en particulier la classe intermédiaire (match nul) à partir des prédicteurs considérés. Il faut cependant considérer qu'un modèle naïf consistantà prévoir systématiquement la victoire à domicile aurait un tauxs de bvonne prédiction égal à 46%.
+
+* Les résultats des différents modèles sont relativement semblables avec un léger avantage encore une fois pour le modèle logistique avec régularisation LASSO.
+
+* Le modèle d'analyse quadratique discriminante affiche des résultats très inférieurs aux autre modèles et très inférieurs à ceux obtenus par le modèle d'analyse linéaire discriminante. Ceci remet en cause l'hypothèse de matrice de covariance spécifiques à l'intérieur des différentes clasees.
+
+```{r, eval= TRUE, echo=TRUE}
+Resultats3 <- data.frame(c(0.5162,0.5259,0.5178,0.4468,0.5149,0.5199,0.5196,0.5203,0.5240,0.5160))
+colnames(Resultats3) <- "accuracy"
+rownames(Resultats3) <- c("log","lasso","lda","qda","knn","tree","bag","rndfrst","boost", "svm")         
+barplot(Resultats3[,1], main ="Resultats des modeles (3 classes)", names.arg=row.names(Resultats3),col="blue",ylim=c(0.40,.55),xpd=FALSE)
+abline(h=0.46, col="red")
+
+```
+
+```{r, eval= TRUE, echo=TRUE}
+# Stops parallel computing
+stopCluster(cl)
+```
