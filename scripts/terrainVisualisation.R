@@ -26,8 +26,10 @@ Match_Shiny<-Match[,(1:55)]
 terrain <- image_read("img/terrain2.jpg")
 drawing <- image_draw(terrain, pointsize = 20,antialias = FALSE)
 drawing
-width<-330
-height<-640  #essayer de trouver comment sortie la resolution de drawing
+
+echelle <- 1.2
+width<-396 * echelle
+height<-768 * echelle #essayer de trouver comment sortie la resolution de drawing
 
 X_home<-width/10*t(Match_Shiny[Match_id,12:22])  #calcul coord team home
 Y_home<-height/2/12*t(Match_Shiny[Match_id,34:44])

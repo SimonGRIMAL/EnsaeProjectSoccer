@@ -9,8 +9,9 @@ load("data/League.Rdata")
 load("data/Team.Rdata")
 load("data/Team_home_viz.RData")
 load("data/Team_away_viz.RData")
-load("data/Match_Shiny.Rdata")
-load("data/player.Rdata")
+load("data/Match_Shiny.RData")
+load("data/player.RData")
+load("data/Player_viz.RData")
 
 #Chargement des sources
 source("helpers.R")

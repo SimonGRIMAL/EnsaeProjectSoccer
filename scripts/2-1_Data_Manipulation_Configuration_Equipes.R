@@ -87,6 +87,7 @@ rm(X_home,X_away,Y_home, Y_away)
 ####################################################################################################################################################
 
 # La fonction 'Plot_Schemas_Tactiques' prend en input l'identifiant du match (match_api_id) et plotte les schemas tactiques des deux equipes
+Match_ID <- 836456
 
 Plot_Schemas_Tactiques <- function(Match_ID){
   Match_Selection <- Matchs_Config %>% filter(match_api_id == Match_ID)

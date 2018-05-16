@@ -51,7 +51,7 @@ filter_match <- function (nom_table,nom_team_home,nom_team_away){
 
 
 ##############################################################################
-# Fonction extraction attributs de l'équipe
+# Fonction extraction attributs de l'?quipe
 ##############################################################################
 
 
@@ -66,7 +66,7 @@ extract_attributes_team <- function (nom_table,where_team){
 
 
 ##############################################################################
-# Fonction mise en forme attributs de l'équipe
+# Fonction mise en forme attributs de l'?quipe
 ##############################################################################
 
 mef_attributes_team <- function(home,away) {

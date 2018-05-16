@@ -29,5 +29,8 @@ Match_Shiny$home_team_api_name <- Match_Shiny$home_team_api_id
 Match_Shiny$away_team_api_name <- Match_Shiny$away_team_api_id
 Match_Shiny$home_team_api_name <- Team$team_long_name[match(Match_Shiny$home_team_api_id  ,Team$team_api_id)]
 Match_Shiny$away_team_api_name <- Team$team_long_name[match(Match_Shiny$away_team_api_id  ,Team$team_api_id)]
+
+#modification des 
+
 #Sauvegarde pour importation dans Shiny
 save(Match_Shiny,file="SoccerApp/data/Match_Shiny.Rdata")
