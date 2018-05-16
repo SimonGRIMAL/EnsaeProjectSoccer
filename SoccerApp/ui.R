@@ -73,7 +73,7 @@ body <- dashboardBody(
     
     tabItem(tabName = "team",
        fluidRow(
-            box(title="Goals scored and conceded by the home team",
+            box(title="Home Team: Goals scored and conceded",
                 status="primary", 
                 solidHeader = TRUE,
                 collapsible = TRUE,
@@ -87,7 +87,7 @@ body <- dashboardBody(
                 plotOutput(outputId="goalHPlot")
             ),
             
-            box(title="Goals scored and conceded by the away team",
+            box(title="Away team: goals scored and conceded",
                 status="danger", 
                 solidHeader = TRUE,
                 collapsible = TRUE,
@@ -102,7 +102,7 @@ body <- dashboardBody(
             )
       ) ,
       fluidRow(
-        box(title="Attributes of the home team",
+        box(title="Home team attributes",
             status="primary", 
             solidHeader = TRUE,
             collapsible = TRUE,
@@ -114,7 +114,7 @@ body <- dashboardBody(
             tableOutput(outputId="teamHData")
             ),
         
-        box(title="Attributes of the away team",
+        box(title="Away team attributes",
             status="danger", 
             solidHeader = TRUE,
             collapsible = TRUE,
