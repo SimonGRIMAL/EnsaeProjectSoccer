@@ -15,7 +15,7 @@ test<-as.data.frame(unique(Player_Attributes$date))
 
 
 #filter la table team_attributes pour garder une ligne par joueur 
-#et celle juste avant le début de la saison sur laquelle on prédit
+#et celle juste avant le dC)but de la saison sur laquelle on prC)dit
 
 Player_Attributes_f <-  Player_Attributes %>% filter(date <= "2015-07-18 00:00:00")%>% group_by(player_api_id)%>% filter(date == max(date))
 
@@ -33,16 +33,26 @@ Player_viz<-Player_viz[which(!(is.na(Player_viz$overall_rating))),]
 
 save(Player_viz,file="data/Player_viz.RData")
 
-#test fonction 
+#mise en forme
 
-test_m3<- as.data.frame(t(test_m2))
-colnames(test_m3)<-"player_api_id"
-test_m4<-test_m3%>%inner_join(Player_viz,by=c("player_api_id"))
+colnames(Player_viz)<-c("player_api_id","Name","Age","Height","Weight","Overall rating","Preferred foot","Attacking work rate","Defensive work rate")
+library(lubridate)
 
-test_m5<-as.data.frame(t(test_m4))
+Player_viz$Age=trunc(time_length(interval(as.Date(substr(Player_viz$Age,1,10)), as.Date(substr("2015-07-18 00:00:00",1,10))), "years"))
+
+Player_viz$Height<-paste(floor(Player_viz$Height/100),"m",round(Player_viz$Height-floor(Player_viz$Height/100)*100),sep="")
+
+Player_viz$Weight<-paste(round(Player_viz$Weight*0.453592),"kg",sep="")
+
+Player_viz$Age<-as.integer(Player_viz$Age)
+
+
+#Player_viz<-Player_viz[,c(1,2,3,4,5,7,6,8,9)]
+
+Player_viz$`Preferred foot`<-NULL
+
+save(Player_viz,file="data/Player_viz.RData")
 
 
 
 
-
-t<-extract_attributes_player("Paris Saint-Germain","FC Nantes")

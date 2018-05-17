@@ -2,7 +2,7 @@ library(shiny)
 library(dplyr)
 library(ggplot2)
 library(reshape)
-
+library(lubridate)
 
 #Téléchargement des objets R nécessaires
 load("data/League.Rdata")
@@ -100,32 +100,15 @@ shinyServer( function(input, output) {
     list(src = tmpfile, contentType = "image/jpeg")
   })
   
-  #Affichage des tableux de joueurs
-
+  #Affichage des tableaux de joueurs
   
-  output$playerHomeData <- renderTable({
-    Match <- filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    ID_home <- t(Match[,56:66])
-    Players_home <- filter(Player,Player$player_api_id %in% c(ID_home[1],ID_home[2],ID_home[3],ID_home[4],ID_home[5],ID_home[6],
-                                                              ID_home[7],ID_home[8],ID_home[9],ID_home[10],ID_home[11]))
-    
-    Players_home$id <- NULL
-    Players_home$player_api_id <- NULL
-    Players_home$player_fifa_api_id <- NULL
-    Players_home
-  })
+  output$playerHomeData <-renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(1:11),c(2:8)])
+  }, colnames = TRUE, spacing = 'xs', striped = TRUE)
   
 
-  output$playerAwayData <- renderTable({
-    Match <- filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    ID_away <- t(Match[,67:77])
-    Players_away <- filter(Player,Player$player_api_id %in% c(ID_away[1],ID_away[2],ID_away[3],ID_away[4],ID_away[5],ID_away[6],
-                                                              ID_away[7],ID_away[8],ID_away[9],ID_away[10],ID_away[11]))
-    Players_away$id <- NULL
-    Players_away$player_api_id <- NULL
-    Players_away$player_fifa_api_id <- NULL
-    Players_away
-  })
+  
   
   output$championnatImage <- renderImage({
     filename <- normalizePath(file.path('./img',
@@ -212,64 +195,5 @@ shinyServer( function(input, output) {
     return(mix[,c(1,3)])
 
   }, colnames=FALSE, sanitize.text.function = function(x) x, striped=TRUE)
-  
-  
-  #tabItem = players
-  ############################################
-
-  output$PlayerH1Data <- renderTable({
-    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    return(t[c(2:9),1])
-  }, colnames = FALSE, spacing = 'xs')
-  
-  output$PlayerH2Data <- renderTable({
-    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    return(t[c(2:9),2])
-  }, colnames = FALSE, spacing = 'xs')
-  
-  output$PlayerH3Data <- renderTable({
-    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    return(t[c(2:9),3])
-  }, colnames = FALSE, spacing = 'xs')
-  
-  output$PlayerH4Data <- renderTable({
-    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    return(t[c(2:9),4])
-  }, colnames = FALSE, spacing = 'xs')
-  
-  output$PlayerH5Data <- renderTable({
-    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    return(t[c(2:9),5])
-  }, colnames = FALSE, spacing = 'xs')
-  
-  output$PlayerH6Data <- renderTable({
-    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    return(t[c(2:9),6])
-  }, colnames = FALSE, spacing = 'xs')
-  
-  output$PlayerH7Data <- renderTable({
-    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    return(t[c(2:9),7])
-  }, colnames = FALSE, spacing = 'xs')
-  
-  output$PlayerH8Data <- renderTable({
-    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    return(t[c(2:9),8])
-  }, colnames = FALSE, spacing = 'xs')
-  
-  output$PlayerH9Data <- renderTable({
-    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    return(t[c(2:9),9])
-  }, colnames = FALSE, spacing = 'xs')
-  
-  output$PlayerH10Data <- renderTable({
-    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    return(t[c(2:9),10])
-  }, colnames = FALSE, spacing = 'xs')
-  
-  output$PlayerH11Data <- renderTable({
-    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
-    return(t[c(2:9),11])
-  }, colnames = FALSE, spacing = 'xs')
   
 })

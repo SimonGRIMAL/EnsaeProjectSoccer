@@ -94,9 +94,9 @@ extract_attributes_player<-function (nom_team_home,nom_team_away){
   players<- as.data.frame(t(players[,c(56:77)]))
   colnames(players)<-"player_api_id"
   
-  players<-players%>%inner_join(Player_viz,by=c("player_api_id"))
+  #colnames(Player_viz)<-c("player_api_id","Name","Age","Height","Weight","Overall rating","Preferred foot","Attacking work rate","Defensive work rate")
   
-  players<-as.data.frame(t(players))
+  players<-players%>%inner_join(Player_viz,by=c("player_api_id"))
   
 }
 

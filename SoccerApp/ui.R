@@ -11,6 +11,7 @@ library(shinydashboard)
 library(plotly)
 library(shinycssloaders)
 
+
 load("data/League.Rdata")
 
 sidebar <- dashboardSidebar(
@@ -23,9 +24,6 @@ sidebar <- dashboardSidebar(
                          icon = icon('line-chart')),
              menuSubItem('Team',
                          tabName = 'team',
-                         icon = icon('line-chart')),
-             menuSubItem('Players',
-                         tabName = 'players',
                          icon = icon('line-chart'))),
              
     menuItem("Modelisation", icon = icon("spinner"), tabName = "modelisation"),
@@ -73,7 +71,7 @@ body <- dashboardBody(
     
     tabItem(tabName = "team",
        fluidRow(
-            box(title="Home Team: Goals scored and conceded",
+            box(title="Home Team : Goals scored and conceded",
                 status="primary", 
                 solidHeader = TRUE,
                 collapsible = TRUE,
@@ -87,7 +85,7 @@ body <- dashboardBody(
                 plotOutput(outputId="goalHPlot")
             ),
             
-            box(title="Away team: goals scored and conceded",
+            box(title="Away team : goals scored and conceded",
                 status="danger", 
                 solidHeader = TRUE,
                 collapsible = TRUE,
@@ -127,69 +125,6 @@ body <- dashboardBody(
             )
             ) 
     ),
-    
-    tabItem(tabName = "players",
-        fluidRow(
-            box( width=2,
-                 solidHeader=FALSE,
-                 status="primary",
-                 tableOutput(outputId="PlayerH1Data")
-              ),
-            box( width=2,
-                 solidHeader=FALSE,
-                 status="primary",
-                 tableOutput(outputId="PlayerH2Data")
-            ),
-            box( width=2,
-                 solidHeader=FALSE,
-                 status="primary",
-                 tableOutput(outputId="PlayerH3Data")
-            ),
-            box( width=2,
-                 solidHeader=FALSE,
-                 status="primary",
-                 tableOutput(outputId="PlayerH4Data")
-            ),
-            box( width=2,
-                 solidHeader=FALSE,
-                 status="primary",
-                 tableOutput(outputId="PlayerH5Data")
-            ),
-            box( width=2,
-                 solidHeader=FALSE,
-                 status="primary",
-                 tableOutput(outputId="PlayerH6Data")
-            )
-            ),
-        fluidRow(
-          box( width=2,
-               solidHeader=FALSE,
-               status="primary",
-               tableOutput(outputId="PlayerH7Data")
-          ),
-          box( width=2,
-               solidHeader=FALSE,
-               status="primary",
-               tableOutput(outputId="PlayerH8Data")
-          ),
-          box( width=2,
-               solidHeader=FALSE,
-               status="primary",
-               tableOutput(outputId="PlayerH9Data")
-          ),
-          box( width=2,
-               solidHeader=FALSE,
-               status="primary",
-               tableOutput(outputId="PlayerH10Data")
-          ),
-          box( width=2,
-               solidHeader=FALSE,
-               status="primary",
-               tableOutput(outputId="PlayerH11Data")
-          )
-        )
-      ),
-    
 
     ###########################################################################################################################################
     
