@@ -45,7 +45,7 @@ shinyServer( function(input, output) {
    })
   
   #Deduction Selection du match #### Match_id ####  A VOIR SI CA MARCHE 
-  Match_id=3000 #for debug
+  #Match_id=3000 #for debug
   #Match_id <- reactive({
   #  Match_Shiny %>% filter(home_team_api_name==input$ChoixEquipeMaison | away_team_api_name==input$ChoixEquipeExterieur) %>% select(match_api_id)
   #})
@@ -101,13 +101,15 @@ shinyServer( function(input, output) {
   })
   
   #Affichage des tableaux de joueurs
-  
   output$playerHomeData <-renderTable({
     t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
     return(t[c(1:11),c(2:8)])
   }, colnames = TRUE, spacing = 'xs', striped = TRUE)
   
-
+  output$playerAwayData <-renderTable({
+    t<-extract_attributes_player(input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    return(t[c(12:22),c(2:8)])
+  }, colnames = TRUE, spacing = 'xs', striped = TRUE)
   
   
   output$championnatImage <- renderImage({

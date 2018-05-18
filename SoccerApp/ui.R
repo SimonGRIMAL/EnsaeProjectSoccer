@@ -25,7 +25,7 @@ sidebar <- dashboardSidebar(
              menuSubItem('Team',
                          tabName = 'team',
                          icon = icon('line-chart'))),
-             
+    
     menuItem("Modelisation", icon = icon("spinner"), tabName = "modelisation"),
     menuItem("Informations", icon = icon("info-circle"), tabName = "about")
   )
@@ -41,91 +41,105 @@ body <- dashboardBody(
     
     tabItem(tabName = "selection",
             box(width=2,
-              selectInput(inputId = "ChoixChampionnat", label = "Championship Choice", 
-                        choices = League$name,
-                       selected = "France Ligue 1"),
-            uiOutput(outputId = "HomeTeamSelection"),    #selectInput dependant du precedent selectInput -> dans Server.R
-            uiOutput(outputId = "AwayTeamSelection")   #selectInput dependant du precedent selectInput -> dans Server.R
+                selectInput(inputId = "ChoixChampionnat", label = "Championship Choice", 
+                            choices = League$name,
+                            selected = "France Ligue 1"),
+                uiOutput(outputId = "HomeTeamSelection"), #selectInput dependant du precedent selectInput -> dans Server.R
+                uiOutput(outputId = "AwayTeamSelection")   #selectInput dependant du precedent selectInput -> dans Server.R
             ),
             box(width=10,
-                title="pas moyen de mettre une variable dependante ici même dans le titre sans quoi les selections des équipes disparaissent!!!!"
-                )
-            ),
+                title="pas moyen de mettre une variable dependante 
+                ici même dans le titre sans quoi les selections des équipes disparaissent!!!!"
+                
+                #tableOutput(outputId="playerHomeData"),
+                #tableOutput(outputId="playerAwayData")
+            )
+    ),
     
     
     ###########################################################################################################################################
     
     tabItem(tabName = "match",
-            box(title = "System of Play",
-                status = "primary",
-                solidHeader = TRUE,
-                collapsible = TRUE,
-                tableOutput(outputId="playerHomeData"),
-                tableOutput(outputId="playerAwayData")
-                
+            fluidRow(
+              column(6,
+                     box(title = "Home team : players",
+                         width=NULL,
+                         status = "primary",
+                         solidHeader = TRUE,
+                         collapsible = TRUE,
+                         tableOutput(outputId="playerHomeData")
+                     ),
+                     box(title = "Away team : players",
+                         width=NULL,
+                         status = "danger",
+                         solidHeader = TRUE,
+                         collapsible = TRUE,
+                         tableOutput(outputId="playerAwayData")
+                     )
               ),
-
-              imageOutput("terrainVisu")
-            
-            ),
+              column(6,
+                     imageOutput("terrainVisu")
+              )
+            )
+    ),
     
     tabItem(tabName = "team",
-       fluidRow(
-            box(title="Home Team : Goals scored and conceded",
-                status="primary", 
-                solidHeader = TRUE,
-                collapsible = TRUE,
-                textOutput(outputId="NameHTeam"),
-                tags$head(tags$style("#NameHTeam{color: green;
+            fluidRow(
+              box(title="Home Team : Goals scored and conceded",
+                  status="primary", 
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  textOutput(outputId="NameHTeam"),
+                  tags$head(tags$style("#NameHTeam{color: green;
                                      font-size: 17px;
                                      font-style: italic;
                                      font-weight: bold;
                                      }")
-                         ),
-                plotOutput(outputId="goalHPlot")
-            ),
-            
-            box(title="Away team : goals scored and conceded",
-                status="danger", 
-                solidHeader = TRUE,
-                collapsible = TRUE,
-                textOutput(outputId="NameATeam"),
-                tags$head(tags$style("#NameATeam{color: green;
+                  ),
+                  plotOutput(outputId="goalHPlot")
+              ),
+              
+              box(title="Away team : goals scored and conceded",
+                  status="danger", 
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  textOutput(outputId="NameATeam"),
+                  tags$head(tags$style("#NameATeam{color: green;
                                      font-size: 17px;
                                      font-style: italic;
                                      font-weight: bold;
                                      }")
-                ),
-                plotOutput(outputId="goalAPlot")
-            )
-      ) ,
-      fluidRow(
-        box(title="Home team attributes",
-            status="primary", 
-            solidHeader = TRUE,
-            collapsible = TRUE,
-           # h3("Attributes of the team",
-           #    style="color: green;
-           #    font-size: 20px;
-           #    font-style: italic;
-           #    font-weight: bold;"),
-            tableOutput(outputId="teamHData")
-            ),
-        
-        box(title="Away team attributes",
-            status="danger", 
-            solidHeader = TRUE,
-            collapsible = TRUE,
-           # h3("Attributes of the team",
-           #    style="color: green;
-           #    font-size: 20px;
-           #    font-style: italic;
-           #    font-weight: bold;"),
-           tableOutput(outputId="teamAData")
-            )
+                  ),
+                  plotOutput(outputId="goalAPlot")
+              )
+            ) ,
+            fluidRow(
+              box(title="Home team attributes",
+                  status="primary", 
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  # h3("Attributes of the team",
+                  #    style="color: green;
+                  #    font-size: 20px;
+                  #    font-style: italic;
+                  #    font-weight: bold;"),
+                  tableOutput(outputId="teamHData")
+              ),
+              
+              box(title="Away team attributes",
+                  status="danger", 
+                  solidHeader = TRUE,
+                  collapsible = TRUE,
+                  # h3("Attributes of the team",
+                  #    style="color: green;
+                  #    font-size: 20px;
+                  #    font-style: italic;
+                  #    font-weight: bold;"),
+                  tableOutput(outputId="teamAData")
+              )
             ) 
     ),
-
+    
     ###########################################################################################################################################
     
     tabItem(tabName = "modelisation",

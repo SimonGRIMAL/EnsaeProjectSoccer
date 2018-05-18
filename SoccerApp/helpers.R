@@ -9,7 +9,6 @@
 # }
 
 
-
 ##############################################################################
 # Fonction flitre sur les equipes + variables graphiques
 ##############################################################################
@@ -87,7 +86,8 @@ mef_attributes_team <- function(home,away) {
 ##############################################################################
 # Fonction extraction Attributs des joueurs
 ##############################################################################
-
+load("data/Match_Shiny.RData")
+load("data/Player_viz.RData")
 extract_attributes_player<-function (nom_team_home,nom_team_away){
   
   players <- filter_match(Match_Shiny,nom_team_home,nom_team_away)
