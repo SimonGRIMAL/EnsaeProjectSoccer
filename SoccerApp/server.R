@@ -12,6 +12,8 @@ load("data/Team_away_viz.RData")
 load("data/Match_Shiny.RData")
 load("data/player.RData")
 load("data/Player_viz.RData")
+load("data/Resultats_Test.RData")
+load("data/Models_Performances.RData")
 
 #Chargement des sources
 source("helpers.R")
@@ -43,13 +45,51 @@ shinyServer( function(input, output) {
      selectInput(inputId = "ChoixEquipeExterieur", label = "Away Team Selection", 
                  choices =  Choice2,selected = "FC Nantes")
    })
+   
+   #Affichage Tableau des côtes
+   output$BookmakersData <-renderTable({
+     Match <- filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+     odds <- Match[,86:97]
+     odds <- matrix(odds, nrow=4)
+     colnames(odds) <- c(paste(input$ChoixEquipeMaison,"win",sep=" "), "Draw",paste(input$ChoixEquipeExterieur,"win",sep=" "))
+     rownames(odds) <- c("Bet365", "Bet&Win"," Blue Square","Ladbrokes ")
+     return(odds)
+   }, colnames = TRUE,rownames=TRUE, spacing = 'xs', striped = TRUE)
   
-  #Deduction Selection du match #### Match_id ####  A VOIR SI CA MARCHE 
-  #Match_id=3000 #for debug
-  #Match_id <- reactive({
-  #  Match_Shiny %>% filter(home_team_api_name==input$ChoixEquipeMaison | away_team_api_name==input$ChoixEquipeExterieur) %>% select(match_api_id)
-  #})
-  
+   #Affichage infos du match
+   output$MatchInfo <-renderTable({
+     Match <- filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+     info <- Match[,c(4,6)]
+     info$date <-as.Date(info$date)
+     info$date <- format(info$date,format="%d %B %Y")
+     info <- t(info)
+     return(info)
+   }, colnames = FALSE,rownames=TRUE, spacing = 'xs', striped = TRUE)
+   
+   #Affichage image Championnat
+   output$championnatImage <- renderImage({
+     filename <- normalizePath(file.path('./img',paste(input$ChoixChampionnat,'.jpg', sep='')))
+     list(src = filename,alt = paste("image",input$ChoixChampionnat)
+     )}, deleteFile = FALSE)
+   
+   #Affichage image Team Home
+   output$TeamHomeImage <- renderImage({
+     filename <- normalizePath(file.path('./img',paste(input$ChoixChampionnat,"/",input$ChoixEquipeMaison,'.jpg', sep='')))
+     list(src = filename,alt = paste("image",input$ChoixEquipeMaison)
+     )}, deleteFile = FALSE)
+   
+   #Affichage image VS
+   output$VS <- renderImage({
+     filename <- normalizePath(file.path('./img','VS.jpg'))
+     list(src = filename)
+     }, deleteFile = FALSE)
+   
+   
+   #Affichage image Team Away
+   output$TeamAwayImage <- renderImage({
+     filename <- normalizePath(file.path('./img',paste(input$ChoixChampionnat,"/",input$ChoixEquipeExterieur,'.jpg', sep='')))
+     list(src = filename,alt = paste("image",input$ChoixEquipeExterieur)
+     )}, deleteFile = FALSE)
   
   #tabItem = team (box de gauche Position Joueurs)
   ################################################
@@ -89,7 +129,9 @@ shinyServer( function(input, output) {
     position <- image_draw(image, pointsize = 20,antialias = FALSE)
     points(X_home,Y_home,pch=25,col="white",bg="blue",cex=2)
     points(X_away,Y_away,pch=24,col="white",bg="red",cex=2)
-    text(X_home,Y_home,col="white",cex=.75,pos=3,labels=Players_home_details$last_name,font=2)
+    text(X_home,Y_home,col="white",cex=.75,pos=3,labels=Players_home_details$first_name,font=2)
+    text(X_home,Y_home,col="white",cex=.75,pos=1,labels=Players_home_details$last_name,font=2)
+    text(X_away,Y_away,col="white",cex=.75,pos=3,labels=Players_away_details$first_name,font=2)
     text(X_away,Y_away,col="white",cex=.75,pos=1,labels=Players_away_details$last_name,font=2)
     
     tmpfile <- position %>%
@@ -112,16 +154,6 @@ shinyServer( function(input, output) {
   }, colnames = TRUE, spacing = 'xs', striped = TRUE)
   
   
-  output$championnatImage <- renderImage({
-    filename <- normalizePath(file.path('./img',
-                                        paste(input$ChoixChampionnat,'.jpg', sep='')))
-    # filename <- "./img/France Ligue 1.jpeg"
-    list(src = filename,
-         alt = paste("image",input$ChoixChampionnat)
-    )
-    
-  }, deleteFile = FALSE)
-  
   
   #tabItem = team (box de droite stats Equipe)
   ############################################
@@ -132,23 +164,22 @@ shinyServer( function(input, output) {
   
   output$goalHPlot <- renderPlot({
     
-      #fonction filter_team dans helpers.R
-      home_team_g<-filter_team(Team_home_viz,input$ChoixEquipeMaison)
-      
-      home_team_g$season <- substr(as.character(home_team_g$variable),nchar(as.character(home_team_g$variable))-8,nchar(as.character(home_team_g$variable)) )
-      home_team_g$variable <- substr(as.character(home_team_g$variable),1,nchar(as.character(home_team_g$variable))-10 )
-      
-      ggplot(home_team_g)+ aes(x =season, y=value, group=variable, colour=variable) +
+    #fonction filter_team dans helpers.R
+    home_team_g<-filter_team(Team_home_viz,input$ChoixEquipeMaison)
+    
+    home_team_g$season <- substr(as.character(home_team_g$variable),nchar(as.character(home_team_g$variable))-8,nchar(as.character(home_team_g$variable)) )
+    home_team_g$variable <- substr(as.character(home_team_g$variable),1,nchar(as.character(home_team_g$variable))-10 )
+    
+    ggplot(home_team_g)+ aes(x =season, y=value, group=variable, colour=variable) +
       geom_point(size=2) +
       geom_line(size=1) + 
       theme_classic() +
       geom_text(aes(label=value), nudge_y = 1, size=3 ) +
       labs(x= "Season", y ="Number of goals") +
       theme(legend.position = "bottom") +
-      scale_color_manual(values=c("red", "green"))
+      scale_color_manual(values=c("dodgerblue", "blue4"))
     
   })
-  
   output$teamHData <- renderTable({
                  
                 home_team_g <- filter(Team_home_viz,team_long_name==input$ChoixEquipeMaison)
@@ -181,9 +212,10 @@ shinyServer( function(input, output) {
       geom_text(aes(label=value), nudge_y = 1, size=3 ) +
       labs(x= "Season", y ="Number of goals") +
       theme(legend.position = "bottom") +
-      scale_color_manual(values=c("red", "green"))
+      scale_color_manual(values=c("red", "firebrick4"))
     
   })
+  
   
   output$teamAData <- renderTable({
     
@@ -198,4 +230,61 @@ shinyServer( function(input, output) {
 
   }, colnames=FALSE, sanitize.text.function = function(x) x, striped=TRUE)
   
+
+
+#tabItem = modelisation
+############################################
+
+output$playingHTeam<- renderText({
+  paste("Home team : " ,input$ChoixEquipeMaison, sep = "")
+})
+
+output$playingATeam<- renderText({
+  paste("Away team : " ,input$ChoixEquipeExterieur, sep = "")
+})
+
+output$models <- renderTable({
+  
+  match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)[,"match_api_id"]
+  model<-Resultats_Test%>%filter(match_api_id==match_select)
+  return(t(model[,6:15]))
+  
+}, colnames=FALSE, rownames=TRUE, striped=TRUE)
+
+
+output$reality <- renderTable({
+  
+  match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)[,"match_api_id"]
+  model<-Resultats_Test%>%filter(match_api_id==match_select)
+  return(t(model[,4]))
+  
+}, colnames=FALSE, rownames=FALSE, striped=TRUE)
+
+
+output$qualityModel <- renderTable({
+  return(Qualite_Models)
+}, colnames=TRUE, rownames=FALSE, striped=TRUE)
+
+
+output$approvalBox <- renderInfoBox({
+  match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)[,"match_api_id"]
+  model<-Resultats_Test%>%filter(match_api_id==match_select)
+  
+  infoBox(
+    "Right predictions", paste(model[,"SuccessRate"],"%",sep=""), icon = icon("thumbs-up", lib = "glyphicon"),
+    color = "green"
+  )
+})
+
+output$disapprovalBox <- renderInfoBox({
+  match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)[,"match_api_id"]
+  model<-Resultats_Test%>%filter(match_api_id==match_select)
+  
+  infoBox(
+    "False predictions", paste(model[,"FailureRate"],"%",sep=""), icon = icon("thumbs-down", lib = "glyphicon"),
+    color = "red"
+  )
+})
+
+
 })

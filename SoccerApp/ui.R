@@ -40,20 +40,40 @@ body <- dashboardBody(
     ###########################################################################################################################################
     
     tabItem(tabName = "selection",
-            box(width=2,
-                selectInput(inputId = "ChoixChampionnat", label = "Championship Choice", 
-                            choices = League$name,
-                            selected = "France Ligue 1"),
-                uiOutput(outputId = "HomeTeamSelection"), #selectInput dependant du precedent selectInput -> dans Server.R
-                uiOutput(outputId = "AwayTeamSelection")   #selectInput dependant du precedent selectInput -> dans Server.R
-            ),
-            box(width=10,
-                title="pas moyen de mettre une variable dependante 
-                ici même dans le titre sans quoi les selections des équipes disparaissent!!!!"
-                
-                #tableOutput(outputId="playerHomeData"),
-                #tableOutput(outputId="playerAwayData")
-            )
+            fluidRow(
+              column(4,
+                     box(title = "Match Selection",
+                         width=NULL,
+                         status = "success",
+                         solidHeader = TRUE,
+                         collapsible = TRUE,
+                         selectInput(inputId = "ChoixChampionnat", label = "Championship Choice", 
+                                     choices = League$name,
+                                     selected = "France Ligue 1"),
+                         uiOutput(outputId = "HomeTeamSelection"), #selectInput dependant du precedent selectInput -> dans Server.R
+                         uiOutput(outputId = "AwayTeamSelection")   #selectInput dependant du precedent selectInput -> dans Server.R
+                     ),
+                     box(title = "Bookmakers Odds",
+                         width=NULL,
+                         status = "success",
+                         solidHeader = TRUE,
+                         collapsible = TRUE,
+                         tableOutput(outputId="BookmakersData")
+                     ),
+                     box(title = "Match Informations",
+                         width=NULL,
+                         status = "success",
+                         solidHeader = TRUE,
+                         collapsible = TRUE,
+                         tableOutput(outputId="MatchInfo")
+                     )
+              ),
+              fluidRow(
+              column(2,offset=1,  imageOutput("TeamHomeImage")),
+              column(2,imageOutput("VS")),
+              column(2,imageOutput("TeamAwayImage")),
+              column(2, offset=1,imageOutput("championnatImage"))
+            ))       
     ),
     
     
@@ -143,8 +163,50 @@ body <- dashboardBody(
     ###########################################################################################################################################
     
     tabItem(tabName = "modelisation",
-            h2("ici la modelisation")
-    ),
+            textOutput(outputId="playingHTeam"),
+            tags$head(tags$style("#playingHTeam{color: green;
+                                 font-size: 25px;
+                                 font-style: italic;
+                                 font-weight: bold;
+                                 }")),
+          textOutput(outputId="playingATeam"),
+          tags$head(tags$style("#playingATeam{color: green;
+                               font-size: 25px;
+                               font-style: italic;
+                               font-weight: bold;
+                               }")),
+          br(),
+          fluidRow(
+            column(6,
+                   box(title="Reality",
+                       width = 0,
+                       status="success", 
+                       solidHeader = TRUE,
+                       collapsible = TRUE,
+                       tableOutput(outputId="reality")
+                   ),
+                   box(title="Modeling",
+                       width = 0,
+                       status="success", 
+                       solidHeader = TRUE,
+                       collapsible = TRUE,
+                       tableOutput(outputId="models")
+                   ),
+                   box(title="Quality of modeling",
+                       width = 0,
+                       status="success", 
+                       solidHeader = TRUE,
+                       collapsible = TRUE,
+                       tableOutput(outputId="qualityModel")
+                   )
+            ),
+            column(6,
+                   infoBoxOutput("approvalBox"),
+                   infoBoxOutput("disapprovalBox")
+            )
+          )
+            ),
+    ###########################################################################################################################################
     ###########################################################################################################################################
     
     tabItem(tabName = "about",
