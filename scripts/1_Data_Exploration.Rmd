@@ -1,0 +1,172 @@
+---
+title: "1_Data_Exploration"
+author: "Olivier EKAMBI"
+date: "4 mars 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+## Analyse exploratoire des donnees de 'Match'
+
+# Identification et resultat du match
+
+```{r}
+glimpse(Match[,1:11])
+summary(Match[,1:11])
+```
+
+# Coordonnees XY des 'Home players'. 
+
+Question 1 : doit on considérer les coordonnées X et Y séparément ou au contraire les agréger en une seule coordonnée XY. De quel type serait cette coordonnée XY 
+Question 2 : Doit on considerer le schema general de jeu (par ex. 4-4-2, 3-3-4 comme une et une seule variable agrégeant le positionnement des diffrerents joueurs ? )
+
+```{r}
+glimpse(Match[,12:22])
+summary(Match[,12:22])
+glimpse(Match[,34:44])
+summary(Match[,34:44])
+```
+
+# Coordonnees XY des 'Away players'. 
+
+
+
+```{r}
+glimpse(Match[,23:33])
+summary(Match[,23:33])
+glimpse(Match[,45:55])
+summary(Match[,45:55])
+# exemple de configuration de jeu
+plot(t(Match[700,23:33]),t(Match[700,45:55]))
+```
+# Identifiants des joueurs des deux équipes 
+
+Identifiants permettent de faire le lien avec le nom des joueurs et leurs caractéristiques dans la table 'Players'
+
+```{r}
+glimpse(Match[,56:66])
+summary(Match[,56:66])
+glimpse(Match[,67:77])
+summary(Match[,67:77])
+```
+
+# Déroulement du match. 
+
+Question : quel est le bon format ? JSON ?
+
+```{r}
+glimpse(Match[,78:85])
+summary(Match[,78:85])
+
+```
+
+
+# Cotes des 10 bookmakers 
+
+H : Home win odds
+D : Draw odds
+A : Away win odds
+
+
+B365 : Bet365
+BW : Bet&Win
+IW : Blue Square
+LB : Ladbrokes
+PS : Pinnacle
+WH : William Hill
+SJ : Stan James
+VC : VC Bet
+GB : Gamebookers
+BS : Blue Square
+
+```{r}
+glimpse(Match[,86:115])
+summary(Match[,86:115])
+
+```
+
+## Analyse exploratoire des donnees de 'Player'
+
+Question 1 : transformer la variable birthday en format date
+Question 2 : Quelle unité de poids est retenue ?
+
+
+
+```{r}
+glimpse(Player)
+summary(Player)
+
+```
+
+
+## Analyse exploratoire des donnees de 'Player_Attributes'
+
+# Caractéristiques générales
+
+date : mettre en format de date
+preferred_foot : format factor (deux modalités : right or left)
+attacking work rate : format factor (trois modalités ordonnées: high, medium, low)
+defensive work rate : format factor (trois modalités ordonnées: high, medium, low)
+
+```{r}
+glimpse(Player_Attributes[,1:9])
+summary(Player_Attributes[,1:9])
+
+```
+
+# Caractéristiques spécifiques (sourced from EA sport FIFA)
+
+```{r}
+glimpse(Player_Attributes[,10:42])
+summary(Player_Attributes[,10:42])
+
+```
+
+## Analyse exploratoire des donnees de 'Team'
+
+
+
+```{r}
+glimpse(Team)
+summary(Team)
+```
+
+## Analyse exploratoire des donnees de 'Team_Attributes'
+
+date : remettre au format date
+
+mettre au format factor (relation d'ordre ?)
+
+buildUpPlaySpeedClass
+buildUpPlayDribblingClass
+buildUpPlayPassingClass
+buildUpPlayPositioningClass
+chanceCreationPassingClass
+chanceCreationCrossingClass
+chanceCreationShootingClass
+chanceCreationPositioningClass
+defencePressureClass 
+defenceAggressionClass 
+defenceTeamWidthClass 
+defenceDefenderLineClass  
+
+```{r}
+glimpse(Team_Attributes)
+summary(Team_Attributes)
+```
+
+## Verification unicite des lignes des differentes matrice
+
+
+```{r}
+sum(Match != unique(Match), na.rm=TRUE)
+sum(Player != unique(Player), na.rm=TRUE)
+sum(Player_Attributes != unique(Player_Attributes), na.rm=TRUE)
+sum(Team != unique(Team), na.rm=TRUE)
+sum(Team_Attributes != unique(Team_Attributes), na.rm=TRUE)
+```
+

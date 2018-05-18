@@ -1,0 +1,164 @@
+---
+title: "2_Data_Manipulation"
+author: "Olivier EKAMBI"
+date: "4 mars 2018"
+output: html_document
+ 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyr)
+par(mfrow=c(1,2))
+```
+
+## Manipulation des donnees : table 'Match'
+
+1 - Le format de la variable 'date' est converti de character à date
+2 - Création d'une nouvelle variable 'goal_diff'  égale à la différence de buts entre l'équipe 'home' et l'équipe 'away'
+3 - Création d'une nouvelle variable 'goal_diff_class' de type facteur à trois modalités : 1:home_loss, 2:draw, 3:home_win
+4 - Modifier le positionnement-terrain des gardiens de but  (X=5 plutot que X=1 par defaut)
+
+```{r}
+attach(Match)
+# conversion du format de la colonne 'date' en format date
+Match$date <- as.Date(date)
+
+# Creation d'une colonne 'goal difference' entre l'équipe 'home' et l'equipe 'away'
+Match$goal_diff <- home_team_goal-away_team_goal
+
+# Creation d'un facteur a trois modalites : home_loss, draw,home_win
+Match$goal_diff_class <- cut(goal_diff, breaks=c(min(goal_diff),-1e-10,+1e-10,max(goal_diff)))
+levels(Match$goal_diff_class) <- c("home_loss","draw","home_win")
+
+glimpse(Match[,116:117])
+glimpse(Match[,116:117])
+hist(Match[,116], main = "Distribution de la difference de buts Home-Away")
+plot(Match[,117])
+
+# Modifier le positionnement-terrain des gardiens de but  (X=5 plutot que X=1 par defaut)
+
+# home team
+plot(home_player_X1,home_player_Y1, main ="gardien de buts au corner gauche")
+Match$home_player_X1 <- ifelse(is.na(home_player_X1),NA,5)
+Match$home_player_Y1 <- ifelse(is.na(home_player_Y1),NA,1)
+plot(home_player_X1,home_player_Y1,main ="gardien de buts dans les cages")
+
+#away team
+plot(away_player_X1,away_player_Y1, main ="gardien de buts au corner gauche")
+Match$away_player_X1 <- ifelse(is.na(away_player_X1),NA,5)
+Match$away_player_Y1 <- ifelse(is.na(away_player_Y1),NA,1)
+plot(away_player_X1,away_player_Y1,main ="gardien de buts dans les cages")
+
+```
+
+## Manipulation des donnees : table 'Player'
+
+1 - convertir la variable birthday en format date
+
+```{r}
+attach(Player)
+# conversion du format de la colonne 'birthday' en format date
+Player$birthday <- as.Date(birthday)
+glimpse(Player)
+```
+
+
+## Manipulation des donnees : table 'Player_Attributes'
+
+1 - convertir la variable 'date' en format de date
+2 - convertir la variable 'preferred_foot' en facteur à deux modalités (1:left, 2:right)
+3 - convertir la variable 'attacking work rate' en facteur à trois modalités ordonnées (1:low, 2:medium, 3:high) ???? --> decision still to be made
+4 - convertir la variable 'defensive work rate' en facteur à trois modalités ordonnées (1:low, 2:medium, 3:high) ???? --> decision still to be made
+
+```{r}
+attach(Player_Attributes)
+# convertir la variable 'date' en format de date
+Player_Attributes$date <- as.Date(date)
+
+# convertir la variable 'preferred_foot' en facteur à deux modalités (1:right, 2:left)
+Player_Attributes$preferred_foot <- factor(preferred_foot)
+
+# Toutes les modalites mal renseignees de la variable 'attacking_work_rate' arbitrairement transformees en 'medium'
+table(attacking_work_rate)
+index_high <- (attacking_work_rate=="high")
+index_low <- (attacking_work_rate=="low")
+Player_Attributes$attacking_work_rate <-rep("medium", length(attacking_work_rate))
+Player_Attributes$attacking_work_rate[index_high] <-"high"
+Player_Attributes$attacking_work_rate[index_low] <-"low"
+table(attacking_work_rate)
+rm(index_high,index_low)
+
+# Toutes les modalites mal renseignees de la variable 'defensive_work_rate' arbitrairement transformees en 'medium'
+table(defensive_work_rate)
+index_high <- (defensive_work_rate=="high")
+index_low <- (defensive_work_rate=="low")
+Player_Attributes$defensive_work_rate <-rep("medium", length(defensive_work_rate))
+Player_Attributes$defensive_work_rate[index_high] <-"high"
+Player_Attributes$defensive_work_rate[index_low] <-"low"
+table(defensive_work_rate)
+rm(index_high,index_low)
+
+```
+
+
+## Manipulation des donnees : table 'Team_Attributes'
+
+1 - convertir la variable 'date' en format de date
+
+2 - convertir la variable 'buildUpPlaySpeedClass' en facteur à 3 modalités ordonnées (1:Slow < 2:Balanced < 3:Fast)
+3 - convertir la variable 'buildUpPlayDribblingClass' en facteur à 3 modalités ordonnées (1:Little < 2:Normal < 3:Lots)
+4 - convertir la variable 'buildUpPlayPassingClass' en facteur à 3 modalités ordonnées (1:Short < 2:Mixed < 3:Long)
+5 - convertir la variable 'buildUpPlayPositionningClass' en facteur à 2 modalités (1:Free Form, 2:Organised) ATTENTION !!! Modalités non ordonnées
+
+6 - convertir la variable 'chanceCreationPassingClass' en facteur à 3 modalités ordonnées (1:Safe < 2:Normal < 3:Risky)
+7 - convertir la variable 'chanceCreationCrossingClass' en facteur à 3 modalités ordonnées (1:Little < 2:Normal < 3:Lots)
+8 - convertir la variable 'chanceCreationShootingClass' en facteur à 3 modalités ordonnées (1:Little < 2:Normal < 3:Lots)
+9 - convertir la variable 'chanceCreationPositioningClass' en facteur à 2 modalités (1:Free Form, 2:Organised) ATTENTION !!! Modalités non ordonnées
+
+10 - convertir la variable 'defencePressureClass' en facteur à 3 modalités ordonnées (1:Deep < 2:Medium < 3:High)
+11 - convertir la variable 'defenceAggressionClass ' en facteur à 3 modalités (1:Contain, 2:Double, 3:Press) ATTENTION !!! Modalités non ordonnées
+12 - convertir la variable 'defenceTeamWidthClass ' en facteur à 3 modalités ordonnées (1:Narrow < 2:Normal < 3:Wide)
+13 - convertir la variable 'chanceCreationPositioningClass' en facteur à 2 modalités (1:Cover, 2:Offside Trap) ATTENTION !!! Modalités non ordonnées
+
+
+
+```{r}
+attach(Team_Attributes)
+# convertir la variable 'date' en format de date
+Team_Attributes$date <- as.Date(date)
+
+# convertir la variable 'buildUpPlaySpeedClass' en facteur à 3 modalités ordonnées (1:Slow < 2:Balanced < 3:Fast)
+Team_Attributes$buildUpPlaySpeedClass <- ordered(buildUpPlaySpeedClass, levels=c("Slow", "Balanced", "Fast"))
+# convertir la variable 'buildUpPlayDribblingClass' en facteur à 3 modalités ordonnées (1:Little < 2:Normal < 3:Lots)
+Team_Attributes$buildUpPlayDribblingClass <- ordered(buildUpPlayDribblingClass, levels=c("Little", "Normal", "Lots"))
+# convertir la variable 'buildUpPlayPassingClass' en facteur à 3 modalités ordonnées (1:Short < 2:Mixed < 3:Long)
+Team_Attributes$buildUpPlayPassingClass <- ordered(buildUpPlayPassingClass, levels=c("Short", "Mixed", "Long"))
+# convertir la variable 'buildUpPlayPositionningClass' en facteur à 2 modalités (1:Free Form, 2:Organised) ATTENTION !!! Modalités non ordonnées
+Team_Attributes$buildUpPlayPositioningClass <- factor(buildUpPlayPositioningClass)
+
+# convertir la variable 'chanceCreationPassingClass' en facteur à 3 modalités ordonnées (1:Safe < 2:Normal < 3:Risky)
+Team_Attributes$chanceCreationPassingClass <- ordered(chanceCreationPassingClass, levels=c("Safe", "Normal", "Risky"))
+# convertir la variable 'chanceCreationCrossingClass' en facteur à 3 modalités ordonnées (1:Little < 2:Normal < 3:Lots)
+Team_Attributes$chanceCreationCrossingClass <- ordered(chanceCreationCrossingClass, levels=c("Little", "Normal", "Lots"))
+# convertir la variable 'chanceCreationShootingClass' en facteur à 3 modalités ordonnées (1:Little < 2:Normal < 3:Lots)
+Team_Attributes$chanceCreationShootingClass <- ordered(chanceCreationShootingClass, levels=c("Little", "Normal", "Lots"))
+# convertir la variable 'chanceCreationPositioningClass' en facteur à 2 modalités (1:Free Form, 2:Organised) ATTENTION !!! Modalités non ordonnées
+Team_Attributes$chanceCreationPositioningClass <- factor(chanceCreationPositioningClass)
+
+# convertir la variable 'defencePressureClass' en facteur à 3 modalités ordonnées (1:Deep < 2:Medium < 3:High)
+Team_Attributes$defencePressureClass <- ordered(defencePressureClass, levels=c("Deep", "Medium", "High"))
+# convertir la variable 'defenceAggressionClass ' en facteur à 3 modalités (1:Contain, 2:Double, 3:Press) ATTENTION !!! Modalités non ordonnées
+Team_Attributes$defenceAggressionClass <- factor(defenceAggressionClass)
+# convertir la variable 'defenceTeamWidthClass ' en facteur à 3 modalités ordonnées (1:Narrow < 2:Normal < 3:Wide)
+Team_Attributes$defenceTeamWidthClass <- ordered(defenceTeamWidthClass, levels=c("Narrow", "Normal", "Wide"))
+# convertir la variable 'chanceCreationPositioningClass' en facteur à 2 modalités (1:Cover, 2:Offside Trap) ATTENTION !!! Modalités non ordonnées
+Team_Attributes$defenceDefenderLineClass  <- factor(defenceDefenderLineClass)
+
+```
+
+
+
+
+
