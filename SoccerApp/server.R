@@ -4,7 +4,7 @@ library(ggplot2)
 library(reshape)
 library(lubridate)
 
-#Téléchargement des objets R nécessaires
+#TC)lC)chargement des objets R nC)cessaires
 load("data/League.Rdata")
 load("data/Team.Rdata")
 load("data/Team_home_viz.RData")
@@ -25,7 +25,7 @@ shinyServer( function(input, output) {
   ####################
   
   #Selection du championnat
-  #renvoyé dans input$ChoixChampionnat
+  #renvoyC) dans input$ChoixChampionnat
   
   #Selection de la team Home
   output$HomeTeamSelection <- renderUI({
@@ -46,7 +46,7 @@ shinyServer( function(input, output) {
                  choices =  Choice2,selected = "FC Nantes")
    })
    
-   #Affichage Tableau des côtes
+   #Affichage Tableau des cC4tes
    output$BookmakersData <-renderTable({
      Match <- filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
      odds <- Match[,86:97]
@@ -235,56 +235,49 @@ shinyServer( function(input, output) {
 #tabItem = modelisation
 ############################################
 
-output$playingHTeam<- renderText({
-  paste("Home team : " ,input$ChoixEquipeMaison, sep = "")
-})
-
-output$playingATeam<- renderText({
-  paste("Away team : " ,input$ChoixEquipeExterieur, sep = "")
-})
-
-output$models <- renderTable({
   
-  match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)[,"match_api_id"]
-  model<-Resultats_Test%>%filter(match_api_id==match_select)
-  return(t(model[,6:15]))
+  output$playingTeams<- renderText({
+    paste(input$ChoixEquipeMaison, " - ", input$ChoixEquipeExterieur,sep = "")
+  })
   
-}, colnames=FALSE, rownames=TRUE, striped=TRUE)
-
-
-output$reality <- renderTable({
+  output$ScoreMatch<- renderText({
+    
+    match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
+    paste(match_select[,"home_team_goal"]," - ",match_select[,"away_team_goal"],  sep = "")
+  })
   
-  match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)[,"match_api_id"]
-  model<-Resultats_Test%>%filter(match_api_id==match_select)
-  return(t(model[,4]))
+  output$models <- renderTable({
+    
+    match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)[,"match_api_id"]
+    model<-Resultats_Test%>%filter(match_api_id==match_select)
+    return(t(model[,6:15]))
+    
+  }, colnames=FALSE, rownames=TRUE, striped=TRUE)
   
-}, colnames=FALSE, rownames=FALSE, striped=TRUE)
-
-
-output$qualityModel <- renderTable({
-  return(Qualite_Models)
-}, colnames=TRUE, rownames=FALSE, striped=TRUE)
-
-
-output$approvalBox <- renderInfoBox({
-  match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)[,"match_api_id"]
-  model<-Resultats_Test%>%filter(match_api_id==match_select)
   
-  infoBox(
-    "Right predictions", paste(model[,"SuccessRate"],"%",sep=""), icon = icon("thumbs-up", lib = "glyphicon"),
-    color = "green"
-  )
-})
-
-output$disapprovalBox <- renderInfoBox({
-  match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)[,"match_api_id"]
-  model<-Resultats_Test%>%filter(match_api_id==match_select)
+  output$qualityModel <- renderTable({
+    return(Qualite_Models)
+  }, colnames=TRUE, rownames=FALSE, striped=TRUE)
   
-  infoBox(
-    "False predictions", paste(model[,"FailureRate"],"%",sep=""), icon = icon("thumbs-down", lib = "glyphicon"),
-    color = "red"
-  )
-})
-
-
+  
+  output$approvalBox <- renderInfoBox({
+    match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)[,"match_api_id"]
+    model<-Resultats_Test%>%filter(match_api_id==match_select)
+    
+    infoBox(
+      "Right predictions", paste(model[,"SuccessRate"],"%",sep=""), icon = icon("thumbs-up", lib = "glyphicon"),
+      color = "green"
+    )
+  })
+  
+  output$disapprovalBox <- renderInfoBox({
+    match_select<-filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)[,"match_api_id"]
+    model<-Resultats_Test%>%filter(match_api_id==match_select)
+    
+    infoBox(
+      "False predictions", paste(model[,"FailureRate"],"%",sep=""), icon = icon("thumbs-down", lib = "glyphicon"),
+      color = "red"
+    )
+  })
+  
 })

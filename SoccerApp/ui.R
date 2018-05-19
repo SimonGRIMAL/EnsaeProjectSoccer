@@ -163,28 +163,28 @@ body <- dashboardBody(
     ###########################################################################################################################################
     
     tabItem(tabName = "modelisation",
-            textOutput(outputId="playingHTeam"),
-            tags$head(tags$style("#playingHTeam{color: green;
-                                 font-size: 25px;
+            textOutput(outputId="ScoreMatch"),
+            tags$head(tags$style("#ScoreMatch{color: green;
+                                 font-size: 40px;
                                  font-style: italic;
                                  font-weight: bold;
                                  }")),
-          textOutput(outputId="playingATeam"),
-          tags$head(tags$style("#playingATeam{color: green;
-                               font-size: 25px;
+          textOutput(outputId="playingTeams"),
+          tags$head(tags$style("#playingTeams{color: green;
+                               font-size: 20px;
                                font-style: italic;
                                font-weight: bold;
                                }")),
           br(),
           fluidRow(
+            infoBoxOutput("approvalBox",width=3),
+            infoBoxOutput("disapprovalBox",width=3)
+          ),
+          
+          fluidRow(
+            
             column(6,
-                   box(title="Reality",
-                       width = 0,
-                       status="success", 
-                       solidHeader = TRUE,
-                       collapsible = TRUE,
-                       tableOutput(outputId="reality")
-                   ),
+                   
                    box(title="Modeling",
                        width = 0,
                        status="success", 
@@ -200,14 +200,12 @@ body <- dashboardBody(
                        tableOutput(outputId="qualityModel")
                    )
             ),
-            column(6,
-                   infoBoxOutput("approvalBox"),
-                   infoBoxOutput("disapprovalBox")
+            column(6
+                   
             )
           )
-            ),
-    ###########################################################################################################################################
-    ###########################################################################################################################################
+    ),
+     ###########################################################################################################################################
     
     tabItem(tabName = "about",
             h3("Version V0"),
