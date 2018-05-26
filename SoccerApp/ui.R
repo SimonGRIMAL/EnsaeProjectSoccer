@@ -200,8 +200,15 @@ body <- dashboardBody(
                        tableOutput(outputId="qualityModel")
                    )
             ),
-            column(6
-                   
+            column(6,
+                   box(title="Comparison of the models",
+                       width = 0,
+                       status="success", 
+                       solidHeader = TRUE,
+                       collapsible = TRUE,
+                       imageOutput(outputId="scatterPlot"),
+                       imageOutput(outputId="pcaPlot")
+                   )
             )
           )
     ),
