@@ -280,4 +280,17 @@ shinyServer( function(input, output) {
     )
   })
   
+  #Affichage image scatterplot
+  output$scatterPlot <- renderImage({
+    filename <- normalizePath(file.path('./img','result_scatterplot.jpg'))
+    list(src = filename)
+  }, deleteFile = FALSE)
+  
+  #Affichage image pcaplot
+  output$pcaPlot <- renderImage({
+    filename <- normalizePath(file.path('./img','result_pca.jpg'))
+    list(src = filename)
+  }, deleteFile = FALSE)
+  
+  
 })
