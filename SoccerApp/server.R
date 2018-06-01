@@ -25,7 +25,7 @@ shinyServer( function(input, output) {
   ####################
   
   #Selection du championnat
-  #renvoyC) dans input$ChoixChampionnat
+  #renvoyé dans input$ChoixChampionnat
   
   #Selection de la team Home
   output$HomeTeamSelection <- renderUI({
@@ -47,7 +47,7 @@ shinyServer( function(input, output) {
                  choices =  Choice2, selected = Choice2$team_long_name[2])
    })
    
-   #Affichage Tableau des cC4tes
+   #Affichage Tableau des cotes
    output$BookmakersData <-renderTable({
      Match <- filter_match(Match_Shiny,input$ChoixEquipeMaison,input$ChoixEquipeExterieur)
      odds <- Match[,86:97]

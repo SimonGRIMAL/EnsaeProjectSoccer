@@ -8,6 +8,9 @@
 #   return(SortieDeMaFonction)
 # }
 
+#Chargement des objets R nécessaires
+load("data/Match_Shiny.RData")
+load("data/Player_viz.RData")
 
 ##############################################################################
 # Fonction flitre sur les equipes + variables graphiques

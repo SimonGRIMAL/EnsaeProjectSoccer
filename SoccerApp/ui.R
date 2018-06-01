@@ -72,7 +72,7 @@ body <- dashboardBody(
               column(2,offset=1,  imageOutput("TeamHomeImage")),
               column(2,imageOutput("VS")),
               column(2,imageOutput("TeamAwayImage")),
-              column(2, offset=1,imageOutput("championnatImage"))
+              column(2, offset=2,imageOutput("championnatImage"))
             ))       
     ),
     
@@ -215,15 +215,14 @@ body <- dashboardBody(
      ###########################################################################################################################################
     
     tabItem(tabName = "about",
-            h3("Version V0"),
-            h3("Select Match Season 2015/2016"),
-            h3("Match Analyse"),
-            p("Players position"),
-            p("Team statistics"),
-            
-            h3("Modelisation"),
-            p("Predictives models based on season 2008 to 2015"),
-            p("And more")
+            h1("Soccer Data App Version 0"),
+            p("Nadira ABIDE, Olivier EKAMBI, Simon GRIMAL"),
+            p("June 2018"),
+            h3("Based on Kaggle Europe Soccer Dataset"),
+            a("https://www.kaggle.com/hugomathien/soccer"),
+            h3("Match Analyse on season 2015/2016"),
+            h3("Predictives models based on season 2008/2009 to 2014/2015 statistics")
+            #includeHTML("Resume_Modelisation.html"),
     )
   )
 )
