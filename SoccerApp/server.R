@@ -4,19 +4,19 @@ library(ggplot2)
 library(reshape)
 library(lubridate)
 
-#TC)lC)chargement des objets R nC)cessaires
+#Chargement des sources
+source("helpers.R")
+
+#Chargement des objets R nécessaires
+load("data/Match_Shiny.RData")
 load("data/League.Rdata")
 load("data/Team.Rdata")
 load("data/Team_home_viz.RData")
 load("data/Team_away_viz.RData")
-load("data/Match_Shiny.RData")
 load("data/player.RData")
 load("data/Player_viz.RData")
 load("data/Resultats_Test.RData")
 load("data/Models_Performances.RData")
-
-#Chargement des sources
-source("helpers.R")
 
 
 shinyServer( function(input, output) {
@@ -34,8 +34,9 @@ shinyServer( function(input, output) {
     Equipe_id_home <- as.numeric(levels(factor(Equipe_id$home_team_api_id)))
     Choice <- Team %>% filter(team_api_id %in% Equipe_id_home) %>% select(team_long_name)
     selectInput(inputId = "ChoixEquipeMaison", label = "Home Team Selection", 
-                choices =  Choice, selected = "Paris Saint-Germain")# ou en une seule ligne Match_Shiny %>% filter(league_id==League[League$name == input$ChoixChampionnat,"id"]) %>% select(home_team_api_name))
+                choices =  Choice, selected = Choice$team_long_name[1])
   })
+  
   #Selection de la team Away
    output$AwayTeamSelection <- renderUI({
      Championnat_id <- League[League$name == input$ChoixChampionnat,"id"]
@@ -43,7 +44,7 @@ shinyServer( function(input, output) {
      Equipe_id_away <- as.numeric(levels(factor(Equipe_id$away_team_api_id)))
      Choice2 <- Team %>% filter(team_api_id %in% Equipe_id_away) %>% select(team_long_name)
      selectInput(inputId = "ChoixEquipeExterieur", label = "Away Team Selection", 
-                 choices =  Choice2,selected = "FC Nantes")
+                 choices =  Choice2, selected = Choice2$team_long_name[2])
    })
    
    #Affichage Tableau des cC4tes
