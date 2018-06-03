@@ -3,8 +3,9 @@ title: "Kaggle Europe Soccer"
 author: "Nadira ABIDE, Olivier EKAMBI, Simon GRIMAL"
 date: "28 avril 2018"
 output:
-  html_document: default
-  pdf_document: default
+  html_document: 
+    toc: true
+    toc_float: true
 ---
 
 
@@ -20,9 +21,9 @@ cl <-makeCluster(nbCores - 1)
 registerDoParallel(cl)
 
 # Fichier de données (ajuster le chemin)
-
-load("C:/Users/sg/Documents/Simon/Travail/5-Formations/ENSAE/EnsaeProjectSoccer/SoccerApp/data/MCPT.Rdata")
+load("C:/Users/Carine/Documents/Olivier/ENSAE/Kaggle_Europe_Soccer/soccer/MCPT.Rdata")
 ```
+
 
 # Description de l'étude
 
@@ -116,6 +117,7 @@ Nous testons les dix modeles de classification ci dessous :
 
 ```{r, eval= TRUE, echo=TRUE}
 unique(MCPT$season)
+minitrain <- MCPT$season %in% c("2008/2009")
 train <- MCPT$season %in% c("2008/2009","2009/2010","2010/2011","2011/2012","2012/2013","2013/2014")
 sum(train)
 test <- MCPT$season %in% c("2014/2015","2015/2016")
@@ -349,6 +351,7 @@ lda2.roc$auc
 ## Modele 4 : Analyse quadratique discriminante (AQD)
 
 
+
 ### Principe de modélisation
 
 L'analyse quadratique discriminante est proche l'analyse linéaire discriminante dans son principe : elle effectue des hypothèses  sur la distribution conjointe des prédicteurs et utilise la règle de Bayes pour calculer des probabilités conditionnelles d'appartenance aux différentes classes. Tout comme l'ALD, l'AQD suppose que le vecteur des prédicteurs *X = (X1, X2, ...Xp)* suit une loi multinormale à l'intérieur de chacune des classes. A la différence de l'ALD, l'AQD ne pose pas de restriction sur les matrices de covariance. Bien que restant dans le cadre de la normalité, les distributions des différentes classes peuvent avoir des paramètres de moyennes et de variance différents.
@@ -465,7 +468,7 @@ La fonction knn ne retournant pas de probabilités d'appartenance aux différent
 
 ### Principe de modélisation
 
-Un arbre de décision consiste à effectuer un partitionnement relativement frustre de l'espace des prédicteurs. Pour une nouvelle observation à classifier, la méthode consiste à identifier la région (ou segment de l'espace) à laquelle appartient cette observation et à lui affecter la classe majoritairement représentée au sein de ce segment. Les règles de décision succesives visant partitionner l'espace des prédicteurs peut être représenté sous une forme d'arbre d'où l'appelation de la méthode. Bien que tres intuitive et simple à mettre en oeuvre, les arbres de décision souffrent généralement d'une forte instabilité et leur pouvoir prédictif est généralement limité. Cependant, les approches de bagging et de boosting permettent de pallier en considérant en utilisant l'arbre de décision comme une brique élémentaire d'une approche plus large.
+Les arbres de décision consistent à effectuer un partitionnement de l'espace des prédicteurs. Pour une nouvelle observation à classifier, la méthode consiste à identifier le segment d'espace auquel appartient cette observation et à lui affecter la classe majoritairement représentée au sein de ce segment. Les règles de décision successives visant partitionner l'espace des prédicteurs peuvent être représentées sous une forme d'arbre d'où l'appelation de la méthode. Bien que tres intuitive et simple à mettre en oeuvre, les arbres de décision souffrent généralement d'une forte instabilité et leur pouvoir prédictif est souvent limité. Cependant, les approches de bagging et de boosting permettent de pallier en considérant en utilisant l'arbre de décision comme une brique élémentaire d'une approche plus large.
 
 ### Calibrage du modèle
 
@@ -514,6 +517,7 @@ tree2.roc$auc
 ```
 
 ## Modele 7 : Bagging d'arbres de décision
+
 
 
 ### Principe de modélisation
@@ -569,6 +573,7 @@ Bag2.roc$auc
 ## Modele 8 : Forêt aléatoire
 
 
+
 ### Principe de modélisation
 
 Le principe est similaire au bagging d'arbres, à la différence notable que dans le cas de la forêt aléatoire, un double tirage aléatoire est effectué pour chacun des arbres. En effet chaque arbre est entraîné à partir d'un ensemble restreint de variables choisies aléatoirement(10 dans le cas présent) et sur un échantillon bootstrap de l'échantillon d'apprentissage. Il en résulte une plus forte décorrélation des différents arbres dans la mesure où la nature du modèle garantit un "équilibre"" de l'importance relative des différents prédicteurs.
@@ -622,7 +627,11 @@ Forest2.roc$auc
 
 ## Modele 9 : Boosting d'arbres
 
-Comme pour le bagging, le boosting agrège de façon séquentielle des arbres de décision. En attribuant un poids plus important aux observations mal classifiées à l'étape précédente, la procédure de boosting "oriente" le modèle dans les directions où son pouvoir prédictif est faible et le force à améliorer son pouvoir prédictif.
+
+
+### Principe de modélisation
+
+Le principe général du boosting consiste à construire une famille d’estimateurs qui sont ensuite agrégés par une moyenne pondérée des estimations (en régression) ou un vote à la majorité (endiscrimination). Les estimateurs sont construits de manière récursive : chaque estimateur est uneversion adaptative du précédent en donnant plus de poids auxobservations mal ajustées ou mal prédites. L’estimateur construit à l’étape k concentrera donc ses efforts sur les observations mal ajustées par l’estimateur à l’étape k-1.Le terme boosting s’applique à des méthodes générales capables de produire des décisions très précises à partir de règles peu précises (qui font légèrement mieux que le hasard).
 
 ### Calibrage du modèle
 
@@ -665,21 +674,24 @@ adaboost2.roc$auc
 ## Modele 10 : Machine à vecteurs supports
 
 
-Les SVM représentent une approche originale datant des années 1990. Le principe consite à trouver un hyperplan séparateur dans l'espace des prédicteurs et utiliser cet hyperplan comme une frontière de décision. Cet hyper plan est choisi de façon optimale afin que la règle de décision soit la plus stable possible. Dans le cas où les variables ne sont pas séparables linéairement, le kernel trick permet d'étendre l'espace des prédicteurs par des transformations fonctionnelles (polynomiale, radiale, ...) et d'appliquer une séparation linéairedans un espace étendu, ce qui revient à appliquer une transformation non linéaire dans l'espace de départ.
 
 ### Principe de la méthode
 
+Les SVM représentent une approche originale datant des années 1990. Le principe consite à trouver un hyperplan séparateur dans l'espace des prédicteurs et utiliser cet hyperplan comme une frontière de décision. Cet hyper plan est choisi de façon optimale afin que la règle de décision soit la plus stable possible. Dans le cas où les variables ne sont pas séparables linéairement, le kernel trick permet d'étendre l'espace des prédicteurs par des transformations fonctionnelles (polynomiale, radiale, ...) et d'appliquer une séparation linéairedans un espace étendu, ce qui revient à appliquer une transformation non linéaire dans l'espace de départ.
 
 ### Calibrage du modèle
 
-Le paramètre cost est obtenu par validation croisée.
+Le paramètre cost est obtenu par validation croisée en ulilisant la fonction tune.svm
 
 ```{r, eval= TRUE, echo=TRUE, message=FALSE}
 library(e1071)
 mydata <- MCPT[,c(4,6:ncol(MCPT))] 
 set.seed(1)
+
+SVMopt2 <-tune.svm(goal_diff_class2~.,data=mydata[minitrain,],kernel="linear",scale=TRUE,cost=10^(-4:1))
+print(SVMopt2)
+
 SVM2 <-svm(goal_diff_class2~.,data=mydata,subset=train,kernel="linear",scale=TRUE,cost=0.001,decision.values=TRUE)
-summary(SVM2)
 ```
 
 ### Apprentissage
@@ -722,9 +734,92 @@ SVM2.roc$auc
 ```{r, eval= TRUE, echo=TRUE}
 Resultats2 <- data.frame(c(0.7091,0.7141,0.7066,0.6959,NA,0.6853,0.7004,0.7094,0.7104,0.7085),c(0.6554,0.6627,0.6554,0.6443,0.6443,0.6606,0.6513,0.6562,0.6560,0.6548))
 colnames(Resultats2) <- c("auc","accuracy")
-rownames(Resultats2) <- c("log","lasso","lda","qda","knn","tree","bag","rndfrst","boost", "svm")         
+rownames(Resultats2) <- c("log","lasso","lda","qda","knn","tree","bag","rndfrst","boost", "svm")
 plot(Resultats2,xlim=c(0.68,0.72),ylim=c(0.64,0.67), main ="Resultats des modeles (2 classes)", col="blue")
 text(Resultats2,label=row.names(Resultats2),cex=1,pos=1, col="blue")
+```
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, results='hide'}
+# Matrice de resultats
+
+Resultats_Test <- cbind(logit2.pred,cvglmnet2.predclass,lda2.predclass,qda2.predclass,knn2.predict,tree2.predclass,
+                        Bag2.predclass,Forest2.predclass,adaboost2.pred$class,SVM2.pred)
+colnames(Resultats_Test) <- c("log","lasso","lda","qda","knn","tree", "bag","rndfrst","boost","svm")
+
+
+Resultats_Test <- as.data.frame(Resultats_Test)
+
+library(dplyr)
+Resultats_Test <- Resultats_Test %>% mutate(log = ifelse(log=="1home_draworloss","Home Draw/Loss","Home Win"),
+                                            lasso = ifelse(lasso=="1home_draworloss","Home Draw/Loss","Home Win"),
+                                            lda = ifelse(lda=="1","Home Draw/Loss","Home Win"),
+                                             qda = ifelse(qda=="1","Home Draw/Loss","Home Win"),
+                                             knn = ifelse(knn=="1","Home Draw/Loss","Home Win"),
+                                             tree = ifelse(tree=="1","Home Draw/Loss","Home Win"),
+                                             bag = ifelse(bag=="1","Home Draw/Loss","Home Win"),
+                                             rndfrst = ifelse(rndfrst=="1","Home Draw/Loss","Home Win"),
+                                             boost = ifelse(boost=="1","Home Draw/Loss","Home Win"),
+                                             svm = ifelse(svm=="1","Home Draw/Loss","Home Win"))
+
+#Join MCPT
+
+Resultats_Test <- cbind(MCPT[test,1:5],Resultats_Test)
+
+Resultats_Test <- Resultats_Test %>% mutate(goal_diff_class2 = ifelse(goal_diff_class2=="1home_draworloss","Home Draw/Loss","Home Win"),
+                                            goal_diff_class3 = ifelse(goal_diff_class3=="1home_loss","Home Loss",ifelse(goal_diff_class3=="2draw","Draw","Home Win")))
+
+
+#Ã¢ÂÂVariables indicatrices
+
+Resultats_Test <- Resultats_Test %>% mutate(ind1 = ifelse(log == goal_diff_class2,1,0), 
+                                            ind2 = ifelse(lasso == goal_diff_class2,1,0), 
+                                            ind3 = ifelse(lda == goal_diff_class2,1,0), 
+                                            ind4 = ifelse(qda == goal_diff_class2,1,0), 
+                                            ind5 = ifelse(knn == goal_diff_class2,1,0), 
+                                            ind6 = ifelse(tree == goal_diff_class2,1,0), 
+                                            ind7 = ifelse(bag == goal_diff_class2,1,0), 
+                                            ind8 = ifelse(rndfrst == goal_diff_class2,1,0),
+                                            ind9 = ifelse(boost == goal_diff_class2,1,0),
+                                            ind10 = ifelse(svm == goal_diff_class2,1,0),
+                                            SuccessRate = (ind1+ind2+ind3+ind4+ind5+ind6+ind7+ind8+ind9+ind10)*10,
+                                            FailureRate = 100-SuccessRate)
+
+
+
+ colnames(Resultats_Test) <- c("match_api_id",
+                              "season",
+                              "goal_diff",
+                              "goal_diff_class2",
+                              "goal_diff_class3",
+                              "Standard Logistic Regression",
+                              "Lasso Logistic Regression",
+                              "Linear Discriminant Analysis",
+                              "Quadratic Discriminant Analysis",
+                              "K-nearest neighbors",
+                              "Decision trees (1 tree)",
+                              "Bagging of trees (500 trees)",
+                              "Random forest (500 trees)",
+                              "Boosting of trees",
+                              "Support vector machines",
+                              "log_p","lasso_p","lda_p","qda_p","knn_p","tree_p","bag_p","rndfrst_p","boost_p","svm_p","SuccessRate","FailureRate")
+
+```
+
+
+
+
+Une ACP des prévisions des différents modèles nous permet une meilleure compréhension des lieaisons entre ces derniers. Les principales conclusions sont les suivantes :
+* Le premier axe factoriel explique 71% de l'inertie totale
+* Le premier plan factoriel explique 80% de l'inertie totale 
+Le cercle des corrélations met en lumière la tres forte corrélation positive entre la grande majorite des modeles. Seul le modele de boosting permet d'offrir une certaine diversification.
+
+
+```{r, eval= TRUE, echo=TRUE}
+library(FactoMineR)
+acp <- PCA(Resultats_Test[,16:25],graph=FALSE)
+plot.PCA(acp,choix="var")
+barplot(acp$eig[,3],main="Valeurs propres")
+#summary(acp)
 ```
 
 ### Trois classes
